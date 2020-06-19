@@ -1,0 +1,6 @@
+boto3==1.13.21
+python-decouple==3.3
+pyfiglet==0.8.post1
+mock==4.0.2
+coverage==5.1
+python-coveralls==2.9.3
