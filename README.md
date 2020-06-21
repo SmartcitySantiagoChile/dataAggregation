@@ -1,9 +1,7 @@
-[![Build Status](https://travis-ci.com/SmartcitySantiagoChile/TransactionByStopVis.svg?branch=master)](https://travis-ci.com/SmartcitySantiagoChile/TransactionByStopVis)
-[![Coverage Status](https://coveralls.io/repos/github/SmartcitySantiagoChile/TransactionByStopVis/badge.svg)](https://coveralls.io/github/SmartcitySantiagoChile/TransactionByStopVis)
+[![Build Status](https://travis-ci.com/SmartcitySantiagoChile/dataAggregation.svg?branch=master)](https://travis-ci.com/SmartcitySantiagoChile/dataAggregation)
+# dataAggregation
 
-# TransactionByStopVis
-
-To create a visualization with bip! transactions for each stop (bus or metro) per day.
+To create csv files with bip! transactions for each day.
 
 ## Requirements
 
