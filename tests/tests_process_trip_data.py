@@ -2,7 +2,7 @@ import csv
 import os
 from unittest import TestCase, mock
 
-from process_trip_data import process_trip_data, save_csv_file, get_zone_dict
+from process_trip_data import process_trip_data, save_csv_file, get_zone_dict, main
 
 
 class ProcessGeneralDataTest(TestCase):
@@ -80,6 +80,7 @@ class ProcessGeneralDataTest(TestCase):
         output_path.return_value = self.data_path
         get_files.return_value = [self.file_path]
         save_csv_file.side_effect = None
+        main(['process_trip_data', 'input'])
 
     def tearDown(self):
         test = os.path.join(self.data_path, 'test.csv')
