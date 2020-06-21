@@ -33,7 +33,7 @@ def process_general_data(file_path):
 
 
 def save_csv_file(data, output, output_filename):
-    with open(os.path.join(output, output_filename + '.csv'), 'w', newline='\n', encoding='latin-1') as outfile:
+    with open(os.path.join(output, output_filename + '.csv'), 'w', newline='\n', encoding='UTF-8') as outfile:
         w = csv.writer(outfile)
         w.writerow(['Fecha', 'Transacciones'])
         for d in data:
@@ -53,7 +53,7 @@ def main(argv):
     This script will create a csv file with number of transactions for each day.
     """
     f = Figlet()
-    logger.info(f.renderText('Transacitions for each Day'))
+    logger.info(f.renderText('Transactions for each Day'))
 
     # Arguments and description
     parser = argparse.ArgumentParser(description='create csv file with number of transactions for each day.')

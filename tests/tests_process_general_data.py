@@ -1,6 +1,7 @@
 import csv
 import os
 from unittest import TestCase, mock
+
 from process_general_data import process_general_data, save_csv_file, main
 
 
@@ -35,7 +36,7 @@ class ProcessGeneralDataTest(TestCase):
         output = self.data_path
         output_filename = 'test'
         save_csv_file(data, output, output_filename)
-        with open(os.path.join(output, output_filename + '.csv'), 'r', newline='\n', encoding='latin-1') as outfile:
+        with open(os.path.join(output, output_filename + '.csv'), 'r', newline='\n', encoding='UTF-8') as outfile:
             r = csv.reader(outfile)
             first = next(r)
             self.assertEqual(['Fecha', 'Transacciones'], first)
@@ -59,7 +60,6 @@ class ProcessGeneralDataTest(TestCase):
         p_data.return_value = [['2018-10-01', '5930344']]
         save_csv_file.side_effect = None
         main(['process_general_data', 'input'])
-
 
     def tearDown(self):
         test = os.path.join(self.data_path, 'test.csv')
