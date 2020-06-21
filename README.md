@@ -9,42 +9,17 @@ To create a visualization with bip! transactions for each stop (bus or metro) pe
 
 - Python 3
 - Dependencies: requirements.txt
-- stops.csv 
-### Install Python 3
-#### Windows users
-
-You need to download  Python 3 from official web site:
- 
- https://www.python.org/downloads/windows/
-
-Select version and download either <strong> Windows x86-64 executable installer </strong> or <strong> Windows x86 executable installer</strong>.
-
-Run Python Installer once downloaded. (In this example, we have downloaded Python 3.8.3). 
-
-![Tutorial](readme_data/windows.png)
-
-
-Make sure you select the <strong>Install launcher for all users </strong> and <strong> Add Python 3.8 </strong> to PATH checkboxes. The latter places the interpreter in the execution path.
-
-![Tutorial](readme_data/windows-2.png   )
-
-After setup was successful check the <strong>Disable path length limit </strong> option. Choosing this option
- will allow Python to bypass 260-character MAX_PATH limit. It is recommended to resolve potential lenght
-  issues that may arise with Python projects developed in Linux (Like this project.) 
-
-![Tutorial](readme_data/windows-3.png   )
 
 ### Install  project
 
-First clone repository at your computer, for instance you can use path `c:\project` in windows or `/home/user/project` for linux environments. If folder does not exist, you have to create it.
 
 Command to get project:
 
 ```
-git clone https://github.com/SmartcitySantiagoChile/TransactionByStopVis
+git clone https://github.com/SmartcitySantiagoChile/dataAggregation
 ```
 
-You can download from github directly too: [https://github.com/](https://github.com/SmartcitySantiagoChile/TransactionByStopVis/releases).
+You can download from github directly too: [https://github.com/](https://github.com/SmartcitySantiagoChile/dataAggregation/releases).
 
 It's recommended to use a virtual environment to keep dependencies required by different projects separate by creating isolated python virtual environments for them.
 
@@ -76,15 +51,10 @@ You need to define the environment keys creating an .env file at root path:
 ```
 AWS_ACCESS_KEY_ID='PUT_HERE_YOUR_ACCESS_KEY'
 AWS_SECRET_ACCESS_KEY='PUT_HERE_YOUR_SECRET_ACCESS_KEY'
-EARLY_TRANSACTION_BUCKET_NAME='PUT_HERE_YOUR_TRANSACTION_BUCKET_NAME'
-MAPBOX_KEY='PUT_HERE_YOUR_MAPBOX_KEY'
+MISCELLANEOUS_BUCKET_NAME='PUT_HERE_YOUR_MISCELLANEOUS_BUCKET_NAME'
 ```
 
-PUT_HERE_YOUR_ACCESS_KEY y PUT_HERE_YOUR_SECRET_ACCESS_KEY can be obtained by an AWS user credentials (https://console.aws.amazon.com/iam/home?#/users).
-
-EARLY_TRANSACTION_BUCKET_NAME is the name for aws bucket.
-
-MAPBOX_KEY can be obtained by a Mapbox Account (https://docs.mapbox.com/help/how-mapbox-works/access-tokens/)
+MISCELLANEOUS_BUCKET_NAME is the name for aws bucket.
 
 ## Run tests
 To verify that everything works well on your computer you can run these automatic tests that will tell you if there is a problem:
@@ -95,71 +65,24 @@ python -m unittest
 
 ## Usage    
 
-To run TransactionByStopVis you need to execute:
+To run dataAggregation you need to execute:
 
 
-python process_data.py [start_date] [end_date] [output_name]
+python process_general_data.py [path] [--output OUTPUT] [--send-to-s3]
 
 ```
-- [output_name] html file name
-- [start_date] start date in YY-MM-DD format.
-- [end_date]  end date in YY-MM-DD format.
+- [path] path with files.
+- [--output OUTPUT] output file path.
+- [--send-to-s3]  send file to S3 bucket
 ```
 
 
 
-The output file will be a html file saved at outputs path. 
+The output file will be a csv file saved at choosen output path or dataAggregation/output by default
 ## Help
 
 To get help with command you need to execute:
 
 ```
-python process_data.py -h 
+python process_general_data.py -h 
 ```
-
-## Tutorial
-
-#### Executing command
-
-First we're going go to execute process_data.py between 2020-05-08 and 2020-05-12
-
-
-```
-python process_data.py 2020-05-08  2020-05-12 tutorial
-```
-If all runs successfully we get the output:
-```
-> tutorial successfully created!
-```
-
-The output can be opened with a web navigator and looks like:
-
-![Tutorial](readme_data/tutorial-1.png)
-
-If you want to show legend info, you should click de upper right icon:
-
-![Tutorial](readme_data/tutorial-2.png)
-
-![Tutorial](readme_data/tutorial-3.png)
-
-If you click on stops it will show info:
-
-![Tutorial](readme_data/tutorial-4.png)
-
-You can show Metro stops clicking on the left column (eye icon):
-
-![Tutorial](readme_data/tutorial-5.png)
-![Tutorial](readme_data/tutorial-6.png)
-
-You can use timeline widget to see changes through time:
-
-![Tutorial](readme_data/tutorial-7.png)
-
-
-
-
-## FAQ
-
-### Where do we get stop file?
-
-It is one of inputs for ADATRAP vis, it represents a set of valid stops for period of time (operational program duration)
