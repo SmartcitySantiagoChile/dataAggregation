@@ -1,8 +1,9 @@
+import urllib
+
 import boto3
 import botocore
 from botocore.exceptions import ClientError
 from decouple import config
-from datetime import datetime
 
 
 class AWSSession:
@@ -14,7 +15,6 @@ class AWSSession:
         self.session = boto3.Session(
             aws_access_key_id=config('AWS_ACCESS_KEY_ID'),
             aws_secret_access_key=config('AWS_SECRET_ACCESS_KEY'))
-        self.bucket_name = config('EARLY_TRANSACTION_BUCKET_NAME')
 
     def check_bucket_exists(self, bucket_name):
         s3 = self.session.resource('s3')
@@ -29,3 +29,13 @@ class AWSSession:
                 raise ValueError("Private Bucket. Forbidden Access!")
             elif error_code == 404:
                 return False
+
+    def _build_url(self, key, bucket_name):
+        return ''.join(['https://s3.amazonaws.com/', bucket_name, '/', urllib.parse.quote(key)])
+
+    def send_file_to_bucket(self, file_path, file_key, bucket_name):
+        s3 = self.session.resource('s3')
+        bucket = s3.Bucket(bucket_name)
+        bucket.upload_file(file_path, file_key)
+
+        return self._build_url(file_key, bucket_name)

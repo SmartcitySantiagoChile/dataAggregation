@@ -4,10 +4,12 @@ import csv
 import logging
 import os
 import sys
-from utils import get_file_object, get_files
-from pyfiglet import Figlet
-from aws import AWSSession
+
 from decouple import config
+from pyfiglet import Figlet
+
+from aws import AWSSession
+from utils import get_file_object, get_files
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -38,6 +40,14 @@ def save_csv_file(data, output, output_filename):
             w.writerow(d)
 
 
+def send_data_to_s3(path):
+    aws_session = AWSSession()
+    if not aws_session.check_bucket_exists(BUCKET_NAME):
+        print('Bucket \'{0}\' does not exist'.format(BUCKET_NAME))
+        exit(1)
+    return True
+
+
 def main(argv):
     """
     This script will create a csv file with number of transactions for each day.
@@ -66,9 +76,8 @@ def main(argv):
     save_csv_file(files, output_path, 'output')
 
     # send to s3
-    if send_to_s3:
-        aws = AWSSession()
-
+    # if send_to_s3:
+    # send_data_to_s3(os.path.join(output_path, 'output.csv'))
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 import csv
 import os
-from unittest import TestCase
-from process_general_data import process_general_data, save_csv_file
+from unittest import TestCase, mock
+from process_general_data import process_general_data, save_csv_file, main
 
 
 class ProcessGeneralDataTest(TestCase):
@@ -41,6 +41,25 @@ class ProcessGeneralDataTest(TestCase):
             self.assertEqual(['Fecha', 'Transacciones'], first)
             second = next(r)
             self.assertEqual(['2018-10-01', '5930344'], second)
+
+    @mock.patch('process_general_data.config')
+    @mock.patch('process_general_data.save_csv_file')
+    @mock.patch('process_general_data.process_general_data')
+    @mock.patch('process_general_data.get_files')
+    @mock.patch('process_general_data.AWSSession')
+    @mock.patch('process_general_data.OUTPUT_PATH')
+    @mock.patch('process_general_data.INPUTS_PATH')
+    @mock.patch('process_general_data.DIR_PATH')
+    def test_main(self, dir_path, input_path, output_path, aws_session, get_files,
+                  p_data, save_csv_file, config):
+        dir_path.return_value = self.data_path
+        input_path.return_value = self.data_path
+        output_path.return_value = self.data_path
+        get_files.return_value = [os.path.join(self.data_path, '2018-10-01.general')]
+        p_data.return_value = [['2018-10-01', '5930344']]
+        save_csv_file.side_effect = None
+        main(['process_general_data', 'input'])
+
 
     def tearDown(self):
         test = os.path.join(self.data_path, 'test.csv')
