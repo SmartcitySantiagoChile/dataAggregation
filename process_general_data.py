@@ -19,6 +19,7 @@ OUTPUT_PATH = os.path.join(DIR_PATH, 'output')
 BUCKET_NAME = config('MISCELLANEOUS_BUCKET_NAME')
 OUTPUT_NAME = 'general-output'
 
+
 def process_general_data(file_path):
     with get_file_object(file_path) as f:
         try:

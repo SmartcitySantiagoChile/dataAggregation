@@ -9,8 +9,7 @@ from collections import defaultdict
 from decouple import config
 from pyfiglet import Figlet
 
-from aws import AWSSession
-from utils import get_file_object, get_files
+from utils import get_file_object, get_files, send_data_to_s3
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,6 +18,7 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 INPUTS_PATH = os.path.join(DIR_PATH, 'inputs')
 OUTPUT_PATH = os.path.join(DIR_PATH, 'output')
 BUCKET_NAME = config('MISCELLANEOUS_BUCKET_NAME')
+OUTPUT_NAME = 'trip-output'
 
 
 def process_trip_data(file_path):
@@ -68,14 +68,6 @@ def save_csv_file(data, output, output_filename):
                     w.writerow([date, start_commune, end_commune, data_dict[start_commune][end_commune]])
 
 
-def send_data_to_s3(path):
-    aws_session = AWSSession()
-    if not aws_session.check_bucket_exists(BUCKET_NAME):
-        print('Bucket \'{0}\' does not exist'.format(BUCKET_NAME))
-        exit(1)
-    return True
-
-
 def main(argv):
     """
     This script will create a csv file with number of expanded trips for each commune per day.
@@ -101,11 +93,13 @@ def main(argv):
     files_path = get_files('trip', input_path)
 
     # process data and save output
-    save_csv_file(files_path, output_path, 'output')
+    save_csv_file(files_path, output_path, OUTPUT_NAME)
 
     # send to s3
-    # if send_to_s3:
-    # send_data_to_s3(os.path.join(output_path, 'output.csv'))
+    if send_to_s3:
+        send_data_to_s3(os.path.join(output_path, '{0}.csv'.format(OUTPUT_NAME)), BUCKET_NAME)
+
+    logger.info('{0} successfully created!'.format(OUTPUT_NAME))
 
 
 if __name__ == "__main__":

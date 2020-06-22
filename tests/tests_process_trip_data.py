@@ -5,7 +5,7 @@ from unittest import TestCase, mock
 from process_trip_data import process_trip_data, save_csv_file, get_zone_dict, main
 
 
-class ProcessGeneralDataTest(TestCase):
+class ProcessTripDataTest(TestCase):
     def setUp(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         self.data_path = os.path.join(dir_path, 'trip_files')
@@ -69,11 +69,10 @@ class ProcessGeneralDataTest(TestCase):
     @mock.patch('process_trip_data.config')
     @mock.patch('process_trip_data.save_csv_file')
     @mock.patch('process_trip_data.get_files')
-    @mock.patch('process_trip_data.AWSSession')
     @mock.patch('process_trip_data.OUTPUT_PATH')
     @mock.patch('process_trip_data.INPUTS_PATH')
     @mock.patch('process_trip_data.DIR_PATH')
-    def test_main(self, dir_path, input_path, output_path, aws_session, get_files,
+    def test_main(self, dir_path, input_path, output_path, get_files,
                   save_csv_file, config):
         dir_path.return_value = self.data_path
         input_path.return_value = self.data_path
@@ -81,6 +80,21 @@ class ProcessGeneralDataTest(TestCase):
         get_files.return_value = [self.file_path]
         save_csv_file.side_effect = None
         main(['process_trip_data', 'input'])
+
+    @mock.patch('process_trip_data.send_data_to_s3')
+    @mock.patch('process_trip_data.save_csv_file')
+    @mock.patch('process_trip_data.process_trip_data')
+    @mock.patch('process_trip_data.get_files')
+    @mock.patch('process_trip_data.INPUTS_PATH')
+    @mock.patch('process_trip_data.DIR_PATH')
+    def test_main_with_s3(self, dir_path, input_path, get_files,
+                          p_data, save_csv_file, send_s3):
+        send_s3.side_effect = mock.MagicMock()
+        dir_path.return_value = 'dir'
+        input_path.return_value = 'input'
+        get_files.return_value = [os.path.join(self.data_path, '2016-03-14.general')]
+        save_csv_file.side_effect = None
+        main(['process_trip_data', 'input', '--send-to-s3'])
 
     def tearDown(self):
         test = os.path.join(self.data_path, 'test.csv')

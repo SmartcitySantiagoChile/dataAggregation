@@ -47,11 +47,10 @@ class ProcessGeneralDataTest(TestCase):
     @mock.patch('process_general_data.save_csv_file')
     @mock.patch('process_general_data.process_general_data')
     @mock.patch('process_general_data.get_files')
-    @mock.patch('process_general_data.AWSSession')
     @mock.patch('process_general_data.OUTPUT_PATH')
     @mock.patch('process_general_data.INPUTS_PATH')
     @mock.patch('process_general_data.DIR_PATH')
-    def test_main(self, dir_path, input_path, output_path, aws_session, get_files,
+    def test_main(self, dir_path, input_path, output_path, get_files,
                   p_data, save_csv_file, config):
         dir_path.return_value = self.data_path
         input_path.return_value = self.data_path
@@ -60,6 +59,22 @@ class ProcessGeneralDataTest(TestCase):
         p_data.return_value = [['2018-10-01', '5930344']]
         save_csv_file.side_effect = None
         main(['process_general_data', 'input'])
+
+    @mock.patch('process_general_data.send_data_to_s3')
+    @mock.patch('process_general_data.save_csv_file')
+    @mock.patch('process_general_data.process_general_data')
+    @mock.patch('process_general_data.get_files')
+    @mock.patch('process_general_data.INPUTS_PATH')
+    @mock.patch('process_general_data.DIR_PATH')
+    def test_main_with_s3(self, dir_path, input_path, get_files,
+                          p_data, save_csv_file, send_s3):
+        send_s3.side_effect = mock.MagicMock()
+        dir_path.return_value = 'dir'
+        input_path.return_value = 'input'
+        get_files.return_value = [os.path.join(self.data_path, '2018-10-01.general')]
+        p_data.return_value = [['2018-10-01', '5930344']]
+        save_csv_file.side_effect = None
+        main(['process_general_data', 'input', '--send-to-s3'])
 
     def tearDown(self):
         test = os.path.join(self.data_path, 'test.csv')

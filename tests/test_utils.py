@@ -1,7 +1,8 @@
 import os
-from unittest import TestCase
-
-from utils import get_files
+from unittest import TestCase, mock
+import contextlib
+from io import StringIO
+from utils import get_files, send_data_to_s3
 
 
 class TestUtils(TestCase):
@@ -15,3 +16,19 @@ class TestUtils(TestCase):
                                   ['2018-nodata.general', '2018-10-01.general', '2018-10-01.general.gz',
                                    '2018-10-01.general.zip']))
         self.assertEqual(expected_files, get_files('general', self.data_path))
+
+    @mock.patch('utils.AWSSession')
+    def test_send_to_s3_bucket_exist(self, awsession):
+        temp_stdout = StringIO()
+        with contextlib.redirect_stdout(temp_stdout):
+            send_data_to_s3('path', 'bucket')
+        output = temp_stdout.getvalue().strip()
+        self.assertTrue(len(output) > 0)
+
+    @mock.patch('utils.AWSSession')
+    def test_send_to_s3_bucket_does_not_exist(self, awsession):
+        bucket_exist = mock.MagicMock()
+        bucket_exist.return_value = False
+        awsession.return_value = mock.MagicMock(check_bucket_exists=bucket_exist)
+        with self.assertRaises(SystemExit):
+            send_data_to_s3('path', 'bucket')

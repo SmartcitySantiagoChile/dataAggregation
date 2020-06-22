@@ -1,8 +1,8 @@
+import glob
 import gzip
 import io
 import os
 import zipfile
-import glob
 from datetime import datetime
 
 from aws import AWSSession
