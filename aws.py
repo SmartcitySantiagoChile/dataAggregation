@@ -1,8 +1,7 @@
 import urllib
 
 import boto3
-import botocore
-from botocore.exceptions import ClientError
+import botocore.exceptions
 from decouple import config
 
 

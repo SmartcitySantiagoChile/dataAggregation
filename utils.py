@@ -3,6 +3,9 @@ import io
 import os
 import zipfile
 import glob
+from datetime import datetime
+
+from aws import AWSSession
 
 
 def is_gzipfile(file_path):
@@ -39,3 +42,13 @@ def get_files(file_type, path):
         files.extend(glob.glob(os.path.join(path, file)))
     return files
 
+
+def send_data_to_s3(path, bucket):
+    aws_session = AWSSession()
+    if not aws_session.check_bucket_exists(bucket):
+        print('Bucket \'{0}\' does not exist'.format(bucket))
+        exit(1)
+    filename = ''.join(path.split('/')[-1]).split(".")[0]
+    print('{0}: uploading file {1}'.format(datetime.now().replace(microsecond=0), path))
+    aws_session.send_file_to_bucket(path, filename, bucket)
+    print('{0}: finished load of file {1}'.format(datetime.now().replace(microsecond=0), path))

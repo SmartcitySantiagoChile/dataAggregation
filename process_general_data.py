@@ -8,8 +8,7 @@ import sys
 from decouple import config
 from pyfiglet import Figlet
 
-from aws import AWSSession
-from utils import get_file_object, get_files
+from utils import get_file_object, get_files, send_data_to_s3
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -18,7 +17,7 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 INPUTS_PATH = os.path.join(DIR_PATH, 'inputs')
 OUTPUT_PATH = os.path.join(DIR_PATH, 'output')
 BUCKET_NAME = config('MISCELLANEOUS_BUCKET_NAME')
-
+OUTPUT_NAME = 'general-output'
 
 def process_general_data(file_path):
     with get_file_object(file_path) as f:
@@ -38,14 +37,6 @@ def save_csv_file(data, output, output_filename):
         w.writerow(['Fecha', 'Transacciones'])
         for d in data:
             w.writerow(d)
-
-
-def send_data_to_s3(path):
-    aws_session = AWSSession()
-    if not aws_session.check_bucket_exists(BUCKET_NAME):
-        print('Bucket \'{0}\' does not exist'.format(BUCKET_NAME))
-        exit(1)
-    return True
 
 
 def main(argv):
@@ -73,11 +64,13 @@ def main(argv):
     files = [process_general_data(file) for file in files_path]
 
     # save output
-    save_csv_file(files, output_path, 'output')
+    save_csv_file(files, output_path, OUTPUT_NAME)
 
     # send to s3
-    # if send_to_s3:
-    # send_data_to_s3(os.path.join(output_path, 'output.csv'))
+    if send_to_s3:
+        send_data_to_s3(os.path.join(output_path, '{0}.csv'.format(OUTPUT_NAME)), BUCKET_NAME)
+
+    logger.info('{0} successfully created!'.format(OUTPUT_NAME))
 
 
 if __name__ == "__main__":
