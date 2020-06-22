@@ -4,6 +4,9 @@ import csv
 import logging
 import os
 import sys
+import gzip
+import shutil
+
 
 from decouple import config
 from pyfiglet import Figlet
@@ -17,7 +20,7 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 INPUTS_PATH = os.path.join(DIR_PATH, 'inputs')
 OUTPUT_PATH = os.path.join(DIR_PATH, 'output')
 BUCKET_NAME = config('MISCELLANEOUS_BUCKET_NAME')
-OUTPUT_NAME = 'general-output'
+OUTPUT_NAME = 'transaccionesPorDía'
 
 
 def process_general_data(file_path):
@@ -33,11 +36,22 @@ def process_general_data(file_path):
 
 
 def save_csv_file(data, output, output_filename):
-    with open(os.path.join(output, output_filename + '.csv'), 'w', newline='\n', encoding='UTF-8') as outfile:
+    name = os.path.join(output, output_filename)
+    csv_name = '{0}.csv'.format(name)
+    gz_name = '{0}.csv.gz'.format(name)
+    gz_actual_name = '{0}.gz'.format(name)
+
+    with open(csv_name, 'w', newline='\n', encoding='UTF-8') as outfile:
         w = csv.writer(outfile)
         w.writerow(['Fecha', 'Transacciones'])
         for d in data:
             w.writerow(d)
+
+    with open(csv_name, 'rb') as f_in:
+        with gzip.open(gz_name, 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
+    os.rename(gz_name, gz_actual_name)
+    os.remove(csv_name)
 
 
 def main(argv):
@@ -69,9 +83,9 @@ def main(argv):
 
     # send to s3
     if send_to_s3:
-        send_data_to_s3(os.path.join(output_path, '{0}.csv'.format(OUTPUT_NAME)), BUCKET_NAME)
+        send_data_to_s3(os.path.join(output_path, '{0}.gz'.format(OUTPUT_NAME)), BUCKET_NAME)
 
-    logger.info('{0} successfully created!'.format(OUTPUT_NAME))
+    logger.info('{0} successfully created!'.format('{0}.gz'.format(OUTPUT_NAME)))
 
 
 if __name__ == "__main__":

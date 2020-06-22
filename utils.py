@@ -48,7 +48,7 @@ def send_data_to_s3(path, bucket):
     if not aws_session.check_bucket_exists(bucket):
         print('Bucket \'{0}\' does not exist'.format(bucket))
         exit(1)
-    filename = ''.join(path.split('/')[-1]).split(".")[0]
+    filename = ''.join(path.split('/')[-1]).split(".")[0] + '.gz'
     print('{0}: uploading file {1}'.format(datetime.now().replace(microsecond=0), path))
     aws_session.send_file_to_bucket(path, filename, bucket)
     print('{0}: finished load of file {1}'.format(datetime.now().replace(microsecond=0), path))

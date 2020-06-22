@@ -1,4 +1,5 @@
 import csv
+import gzip
 import os
 from unittest import TestCase, mock
 
@@ -61,10 +62,11 @@ class ProcessTripDataTest(TestCase):
                     ['2016-03-14', 'CERRILLOS', 'MAIPU', '1.36'],
                     ['2016-03-14', 'MAIPU', 'CERRILLOS', '1.41'],
                     ['2016-03-14', 'LAS CONDES', 'SANTIAGO', '1.33']]
-        with open(os.path.join(self.data_path, 'test.csv')) as test:
-            reader = csv.reader(test)
+        with gzip.open(os.path.join(self.data_path, output_filename) + '.gz', 'rt') as outfile:
+            reader = csv.reader(outfile)
             for row in expected:
                 self.assertEqual(row, next(reader))
+
 
     @mock.patch('process_trip_data.config')
     @mock.patch('process_trip_data.save_csv_file')
@@ -97,6 +99,9 @@ class ProcessTripDataTest(TestCase):
         main(['process_trip_data', 'input', '--send-to-s3'])
 
     def tearDown(self):
-        test = os.path.join(self.data_path, 'test.csv')
-        if os.path.exists(test):
-            os.remove(test)
+        test_csv = os.path.join(self.data_path, 'test.csv')
+        test_gz = os.path.join(self.data_path, 'test.gz')
+        if os.path.exists(test_csv):
+            os.remove(test_csv)
+        if os.path.exists(test_gz):
+            os.remove(test_gz)
