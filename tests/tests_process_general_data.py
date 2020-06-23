@@ -1,5 +1,6 @@
 import csv
 import gzip
+import logging
 import os
 from unittest import TestCase, mock
 
@@ -14,6 +15,7 @@ class ProcessGeneralDataTest(TestCase):
         self.file_path_gz = os.path.join(dir_path, 'general_files/2018-10-01.general.gz')
         self.file_path_zip = os.path.join(dir_path, 'general_files/2018-10-01.general.zip')
         self.file_path_without_data = os.path.join(dir_path, 'general_files/2018-nodata.general')
+        logging.disable(logging.CRITICAL)
 
     def test_process_general_data_correct(self):
         expected = ['2018-10-01', '5930344']
@@ -28,9 +30,7 @@ class ProcessGeneralDataTest(TestCase):
         self.assertEqual(expected, process_general_data(self.file_path_zip))
 
     def test_process_general_data_nodata(self):
-        with self.assertRaises(StopIteration) as cm:
-            process_general_data(self.file_path_without_data)
-            self.assertEqual(cm.exception.code, 1)
+        self.assertIsNone(process_general_data(self.file_path_without_data))
 
     def test_save_csv_file(self):
         data = [['2018-10-01', '5930344']]

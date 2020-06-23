@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/SmartcitySantiagoChile/dataAggregation.svg?branch=master)](https://travis-ci.com/SmartcitySantiagoChile/dataAggregation)
+[![Build Status](https://travis-ci.com/SmartcitySantiagoChile/dataAggregation.svg?branch=master)](https://travis-ci.com/SmartcitySantiagoChile/dataAggregation) [![Coverage Status](https://coveralls.io/repos/github/SmartcitySantiagoChile/dataAggregation/badge.svg?branch=master)](https://coveralls.io/github/SmartcitySantiagoChile/dataAggregation?branch=master)
 # dataAggregation
 
 To create csv files with bip! transactions for each day.

@@ -27,8 +27,9 @@ def process_general_data(file_path):
     with get_file_object(file_path) as f:
         try:
             next(f)  # skip header
-        except StopIteration:
+        except StopIteration as e:
             logger.error("Error: file ", f.name, "is empty.")
+            return None
         delimiter = str('|')
         reader = csv.reader(f, delimiter=delimiter)
         row = next(reader)
@@ -76,8 +77,11 @@ def main(argv):
 
     # process data
     files_path = get_files('general', input_path)
-    files = [process_general_data(file) for file in files_path]
-
+    files = []
+    for file in files_path:
+        res = process_general_data(file)
+        if res:
+            files.append(res)
     # save output
     save_csv_file(files, output_path, OUTPUT_NAME)
 

@@ -31,6 +31,7 @@ def process_trip_data(file_path):
             next(f)  # skip header
         except StopIteration:
             logger.error("Error: file ", f.name, "is empty.")
+            return None
 
         delimiter = str('|')
         reader = csv.reader(f, delimiter=delimiter)
@@ -69,6 +70,8 @@ def save_csv_file(data, output, output_filename):
         for d in data:
             date = "".join(d.split("/")[-1]).split(".")[0]
             data_dict = process_trip_data(d)
+            if not data_dict:
+                pass
             for start_commune in data_dict:
                 for end_commune in data_dict[start_commune].keys():
                     w.writerow([date, start_commune, end_commune, data_dict[start_commune][end_commune]])

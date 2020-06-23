@@ -1,5 +1,6 @@
 import csv
 import gzip
+import logging
 import os
 from unittest import TestCase, mock
 
@@ -15,6 +16,7 @@ class ProcessTripDataTest(TestCase):
         self.file_path_zip = os.path.join(dir_path, 'trip_files/2016-03-14.trip.zip')
         self.file_path_without_data = os.path.join(dir_path, 'trip_files/2016-nodata.trip')
         self.zone777_path = os.path.join(dir_path, 'trip_files/zone_dictionary.csv')
+        logging.disable(logging.CRITICAL)
 
     def test_get_zone_dict(self):
         expected_dict = {'135': 'CERRO NAVIA', '56': 'RENCA', '522': 'PUDAHUEL', '137': 'CERRO NAVIA', '837': 'RENCA',
@@ -44,9 +46,7 @@ class ProcessTripDataTest(TestCase):
         self.assertDictEqual(expected_dict, process_trip_data(self.file_path_zip))
 
     def test_process_trip_data_nodata(self):
-        with self.assertRaises(StopIteration) as cm:
-            process_trip_data(self.file_path_without_data)
-            self.assertEqual(cm.exception.code, 1)
+        self.assertIsNone(process_trip_data(self.file_path_without_data))
 
     def test_save_csv_file(self):
         data = [self.file_path]
@@ -66,7 +66,6 @@ class ProcessTripDataTest(TestCase):
             reader = csv.reader(outfile)
             for row in expected:
                 self.assertEqual(row, next(reader))
-
 
     @mock.patch('process_trip_data.config')
     @mock.patch('process_trip_data.save_csv_file')
