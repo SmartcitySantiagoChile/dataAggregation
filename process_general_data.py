@@ -1,17 +1,17 @@
 # -*- coding: utf8 -*-
 import argparse
 import csv
+import gzip
 import logging
 import os
-import sys
-import gzip
 import shutil
-
+import sys
+from datetime import datetime
 
 from decouple import config
 from pyfiglet import Figlet
 
-from utils import get_file_object, get_files, send_data_to_s3
+from utils import get_file_object, get_files, send_data_to_s3, valid_date
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 INPUTS_PATH = os.path.join(DIR_PATH, 'inputs')
 OUTPUT_PATH = os.path.join(DIR_PATH, 'output')
 BUCKET_NAME = config('MISCELLANEOUS_BUCKET_NAME')
-OUTPUT_NAME = 'transaccionesPorDía'
+OUTPUT_NAME = 'transaccionesPorDia'
 
 
 def process_general_data(file_path):
@@ -69,11 +69,22 @@ def main(argv):
     parser.add_argument('--send-to-s3', help='Send file to S3 bucket.', action='store_true')
     parser.add_argument('--output', default=None,
                         help='path where files will be saved, if it is not provided we will use output path')
+    parser.add_argument('--lower-bound', help='Lower bound date to process in format YYYY-MM-DD.', default=None,
+                        type=valid_date)
+    parser.add_argument('--upper-bound', help='Upper bound date to process in format YYYY-MM-DD.', default=None,
+                        type=valid_date)
     args = parser.parse_args(argv[1:])
+
+
 
     input_path = args.path
     send_to_s3 = args.send_to_s3
     output_path = args.output if args.output else OUTPUT_PATH
+    lower_bound = args.lower_bound
+    upper_bound = args.upper_bound
+
+    if len([x for x in (args.lower_bound, args.upper_bound) if x is not None]) == 1:
+        parser.error('--lower-bound and --upper-bound must be given together')
 
     # process data
     files_path = get_files('general', input_path)
@@ -81,7 +92,14 @@ def main(argv):
     for file in files_path:
         res = process_general_data(file)
         if res:
-            files.append(res)
+            if lower_bound:
+                if not lower_bound <= datetime.strptime(res[0], '%Y-%m-%d') <= upper_bound:
+                    pass
+                else:
+                    files.append(res)
+            else:
+                files.append(res)
+    files.sort(key=lambda x: x[0])
     # save output
     save_csv_file(files, output_path, OUTPUT_NAME)
 

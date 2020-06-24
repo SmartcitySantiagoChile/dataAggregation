@@ -1,3 +1,4 @@
+import argparse
 import glob
 import gzip
 import io
@@ -40,6 +41,7 @@ def get_files(file_type, path):
     files = []
     for file in types:
         files.extend(glob.glob(os.path.join(path, file)))
+    files.sort(key=lambda x: ''.join(x.split("/")[-1]).split(".")[0])
     return files
 
 
@@ -52,3 +54,11 @@ def send_data_to_s3(path, bucket):
     print('{0}: uploading file {1}'.format(datetime.now().replace(microsecond=0), path))
     aws_session.send_file_to_bucket(path, filename, bucket)
     print('{0}: finished load of file {1}'.format(datetime.now().replace(microsecond=0), path))
+
+
+def valid_date(s):
+    try:
+        return datetime.strptime(s, "%Y-%m-%d")
+    except ValueError:
+        msg = "Not a valid date: '{0}'.".format(s)
+        raise argparse.ArgumentTypeError(msg)

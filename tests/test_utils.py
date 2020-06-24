@@ -1,8 +1,10 @@
 import os
+from datetime import datetime
 from unittest import TestCase, mock
 import contextlib
 from io import StringIO
-from utils import get_files, send_data_to_s3
+from utils import get_files, send_data_to_s3, valid_date
+import argparse
 
 
 class TestUtils(TestCase):
@@ -32,3 +34,10 @@ class TestUtils(TestCase):
         awsession.return_value = mock.MagicMock(check_bucket_exists=bucket_exist)
         with self.assertRaises(SystemExit):
             send_data_to_s3('path', 'bucket')
+
+    def test_valid_date(self):
+        date = '2010-10-10'
+        expected_date = datetime.strptime(date, "%Y-%m-%d")
+        self.assertEqual(expected_date, valid_date(date))
+        with self.assertRaises(argparse.ArgumentTypeError):
+            valid_date('1')
