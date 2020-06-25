@@ -69,13 +69,11 @@ def main(argv):
     parser.add_argument('--send-to-s3', help='Send file to S3 bucket.', action='store_true')
     parser.add_argument('--output', default=None,
                         help='path where files will be saved, if it is not provided we will use output path')
-    parser.add_argument('--lower-bound', help='Lower bound date to process in format YYYY-MM-DD.', default=None,
+    parser.add_argument('--lower-bound', help='Lower bound date to process in YYYY-MM-DD format .', default=None,
                         type=valid_date)
-    parser.add_argument('--upper-bound', help='Upper bound date to process in format YYYY-MM-DD.', default=None,
+    parser.add_argument('--upper-bound', help='Upper bound date to process in YYYY-MM-DD format .', default=None,
                         type=valid_date)
     args = parser.parse_args(argv[1:])
-
-
 
     input_path = args.path
     send_to_s3 = args.send_to_s3
@@ -85,6 +83,9 @@ def main(argv):
 
     if len([x for x in (args.lower_bound, args.upper_bound) if x is not None]) == 1:
         parser.error('--lower-bound and --upper-bound must be given together')
+
+    if lower_bound and lower_bound > upper_bound:
+        parser.error('lower-bound must be lower than upper-bound ')
 
     # process data
     files_path = get_files('general', input_path)

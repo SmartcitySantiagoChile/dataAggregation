@@ -97,6 +97,81 @@ class ProcessTripDataTest(TestCase):
         save_csv_file.side_effect = None
         main(['process_trip_data', 'input', '--send-to-s3'])
 
+    @mock.patch('process_trip_data.config')
+    @mock.patch('process_trip_data.save_csv_file')
+    @mock.patch('process_trip_data.process_trip_data')
+    @mock.patch('process_trip_data.get_files')
+    @mock.patch('process_trip_data.OUTPUT_PATH')
+    @mock.patch('process_trip_data.INPUTS_PATH')
+    @mock.patch('process_trip_data.DIR_PATH')
+    def test_main_with_lower_bound_only(self, dir_path, input_path, output_path, get_files,
+                                        p_data, save_csv_file, config):
+        dir_path.return_value = self.data_path
+        input_path.return_value = self.data_path
+        output_path.return_value = self.data_path
+        get_files.return_value = [os.path.join(self.data_path, '2018-10-01.general')]
+        p_data.return_value = [['2018-10-01', '5930344']]
+        save_csv_file.side_effect = None
+        with self.assertRaises(SystemExit) as cm:
+            main(['process_trip_data', 'input', '--lower-bound', '2020-10-10'])
+            self.assertEqual(cm.exception.code, 2)
+
+    @mock.patch('process_trip_data.config')
+    @mock.patch('process_trip_data.save_csv_file')
+    @mock.patch('process_trip_data.process_trip_data')
+    @mock.patch('process_trip_data.get_files')
+    @mock.patch('process_trip_data.OUTPUT_PATH')
+    @mock.patch('process_trip_data.INPUTS_PATH')
+    @mock.patch('process_trip_data.DIR_PATH')
+    def test_main_with_upper_bound_only(self, dir_path, input_path, output_path, get_files,
+                                        p_data, save_csv_file, config):
+        dir_path.return_value = self.data_path
+        input_path.return_value = self.data_path
+        output_path.return_value = self.data_path
+        get_files.return_value = [os.path.join(self.data_path, '2018-10-01.general')]
+        p_data.return_value = [['2018-10-01', '5930344']]
+        save_csv_file.side_effect = None
+        with self.assertRaises(SystemExit) as cm:
+            main(['process_trip_data', 'input', '--upper-bound', '2020-10-10'])
+            self.assertEqual(cm.exception.code, 2)
+
+    @mock.patch('process_trip_data.config')
+    @mock.patch('process_trip_data.save_csv_file')
+    @mock.patch('process_trip_data.process_trip_data')
+    @mock.patch('process_trip_data.get_files')
+    @mock.patch('process_trip_data.OUTPUT_PATH')
+    @mock.patch('process_trip_data.INPUTS_PATH')
+    @mock.patch('process_trip_data.DIR_PATH')
+    def test_main_with_upper_bound_lower(self, dir_path, input_path, output_path, get_files,
+                                         p_data, save_csv_file, config):
+        dir_path.return_value = self.data_path
+        input_path.return_value = self.data_path
+        output_path.return_value = self.data_path
+        get_files.return_value = [os.path.join(self.data_path, '2018-10-01.general')]
+        p_data.return_value = [['2018-10-01', '5930344']]
+        save_csv_file.side_effect = None
+        with self.assertRaises(SystemExit) as cm:
+            main(['process_trip_data', 'input', '--lower-bound', '2021-10-10', '--upper-bound', '2020-10-10'])
+            self.assertEqual(cm.exception.code, 2)
+
+    @mock.patch('process_trip_data.config')
+    @mock.patch('process_trip_data.save_csv_file')
+    @mock.patch('process_trip_data.process_trip_data')
+    @mock.patch('process_trip_data.get_files')
+    @mock.patch('process_trip_data.OUTPUT_PATH')
+    @mock.patch('process_trip_data.INPUTS_PATH')
+    @mock.patch('process_trip_data.DIR_PATH')
+    def test_main_with_lower_and_upper_bound(self, dir_path, input_path, output_path, get_files,
+                                             p_data, save_csv_file, config):
+        dir_path.return_value = self.data_path
+        input_path.return_value = self.data_path
+        output_path.return_value = self.data_path
+        get_files.return_value = [os.path.join(self.data_path, '2018-10-01.general')]
+        p_data.return_value = ['2018-10-01', '5930344']
+        save_csv_file.side_effect = None
+        main(['process_trip_data', 'input', '--lower-bound', '2019-10-01', '--upper-bound', '2020-01-01'])
+
+
     def tearDown(self):
         test_csv = os.path.join(self.data_path, 'test.csv')
         test_gz = os.path.join(self.data_path, 'test.gz')

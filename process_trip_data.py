@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 import argparse
 import csv
+from datetime import datetime
 import gzip
 import logging
 import os
@@ -11,7 +12,7 @@ from collections import defaultdict
 from decouple import config
 from pyfiglet import Figlet
 
-from utils import get_file_object, get_files, send_data_to_s3
+from utils import get_file_object, get_files, send_data_to_s3, valid_date
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -99,15 +100,32 @@ def main(argv):
     parser.add_argument('--send-to-s3', help='Send file to S3 bucket.', action='store_true')
     parser.add_argument('--output', default=None,
                         help='path where files will be saved, if it is not provided we will use output path')
+    parser.add_argument('--lower-bound', help='Lower bound date to process in YYYY-MM-DD format .', default=None,
+                        type=valid_date)
+    parser.add_argument('--upper-bound', help='Upper bound date to process in YYYY-MM-DD format .', default=None,
+                        type=valid_date)
     args = parser.parse_args(argv[1:])
 
     input_path = args.path
     send_to_s3 = args.send_to_s3
     output_path = args.output if args.output else OUTPUT_PATH
+    lower_bound = args.lower_bound
+    upper_bound = args.upper_bound
+
+    if len([x for x in (lower_bound, upper_bound) if x is not None]) == 1:
+        parser.error('--lower-bound and --upper-bound must be given together')
+
+    if lower_bound and upper_bound and lower_bound > upper_bound:
+        parser.error('lower-bound must be lower than upper-bound ')
 
     # get data files
     files_path = get_files('trip', input_path)
 
+    # filter between dates
+    if lower_bound:
+        files_path = [file for file in files_path if
+                      lower_bound <= datetime.strptime(''.join(file.split('/')[-1]).split(".")[0],
+                                                       '%Y-%m-%d') <= upper_bound]
     # process data and save output
     save_csv_file(files_path, output_path, OUTPUT_NAME)
 
