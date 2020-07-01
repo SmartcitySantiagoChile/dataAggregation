@@ -57,6 +57,25 @@ class ProcessTripDataTest(TestCase):
         self.assertIsNone(process_trip_data(self.file_path_empty_gz))
 
     def test_save_csv_file(self):
+        data = [self.file_path, self.file_path_empty_gz, self.file_path_empty_zip, self.file_path_without_data]
+        output = self.data_path
+        output_filename = 'test'
+        save_csv_file(data, output, output_filename)
+        expected = [['Fecha', 'Comuna_origen', 'Comuna_destino', 'N°_viajes_expandidos'],
+                    ['2016-03-14', 'ÑUÑOA', 'RECOLETA', '1.31'],
+                    ['2016-03-14', 'RECOLETA', 'SANTIAGO', '1.33'],
+                    ['2016-03-14', 'SANTIAGO', 'ÑUÑOA', '1.31'],
+                    ['2016-03-14', 'SANTIAGO', 'SANTIAGO', '1.23'],
+                    ['2016-03-14', 'LA FLORIDA', 'LA FLORIDA', '1.34'],
+                    ['2016-03-14', 'CERRILLOS', 'MAIPU', '1.36'],
+                    ['2016-03-14', 'MAIPU', 'CERRILLOS', '1.41'],
+                    ['2016-03-14', 'LAS CONDES', 'SANTIAGO', '1.33']]
+        with gzip.open(os.path.join(self.data_path, output_filename) + '.gz', 'rt') as outfile:
+            reader = csv.reader(outfile)
+            for row in expected:
+                self.assertEqual(row, next(reader))
+
+    def test_save_multiple_csv_file(self):
         data = [self.file_path]
         output = self.data_path
         output_filename = 'test'
