@@ -68,6 +68,7 @@ def save_csv_file(data, output, output_filename):
         w.writerow(['Fecha', 'Comuna_origen', 'Comuna_destino', 'N°_viajes_expandidos'])
         for d in data:
             date = "".join(os.path.basename(d)).split(".")[0]
+            logger.info("Processing date {0}...".format(date))
             data_dict = process_trip_data(d)
             if data_dict:
                 for start_commune in data_dict:
