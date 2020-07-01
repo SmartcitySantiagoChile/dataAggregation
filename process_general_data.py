@@ -24,16 +24,17 @@ OUTPUT_NAME = 'transaccionesPorDia'
 
 
 def process_general_data(file_path):
-    with get_file_object(file_path) as f:
-        try:
-            next(f)  # skip header
-        except StopIteration as e:
-            logger.error("Error: file ", f.name, "is empty.")
-            return None
+    try:
+        f = get_file_object(file_path)
+        next(f)  # skip header
         delimiter = str('|')
         reader = csv.reader(f, delimiter=delimiter)
         row = next(reader)
-        return [row[0], row[12]]
+    except (IndexError, StopIteration):
+        logger.error("Error: file ", file_path, "is empty.")
+        return None
+    f.close()
+    return [row[0], row[12]]
 
 
 def save_csv_file(data, output, output_filename):

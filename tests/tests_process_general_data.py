@@ -15,6 +15,8 @@ class ProcessGeneralDataTest(TestCase):
         self.file_path_gz = os.path.join(dir_path, 'general_files/2018-10-01.general.gz')
         self.file_path_zip = os.path.join(dir_path, 'general_files/2018-10-01.general.zip')
         self.file_path_without_data = os.path.join(dir_path, 'general_files/2018-nodata.general')
+        self.file_path_empty_zip = os.path.join(dir_path, 'general_files/2019-10-nodata.general.zip')
+        self.file_path_empty_gz = os.path.join(dir_path, 'general_files/2019-10-nodata.general.gz')
         logging.disable(logging.CRITICAL)
 
     def test_process_general_data_correct(self):
@@ -31,6 +33,12 @@ class ProcessGeneralDataTest(TestCase):
 
     def test_process_general_data_nodata(self):
         self.assertIsNone(process_general_data(self.file_path_without_data))
+
+    def test_process__trip_data_empty_zip(self):
+        self.assertIsNone(process_general_data(self.file_path_empty_zip))
+
+    def test_process__trip_data_empty_gz(self):
+        self.assertIsNone(process_general_data(self.file_path_empty_gz))
 
     def test_save_csv_file(self):
         data = [['2018-10-01', '5930344']]
@@ -94,7 +102,6 @@ class ProcessGeneralDataTest(TestCase):
         save_csv_file.side_effect = None
         with self.assertRaises(SystemExit) as cm:
             main(['process_general_data', 'input', '--lower-bound', '2020-10-10'])
-            self.assertEqual(cm.exception.code, 2)
 
     @mock.patch('process_general_data.config')
     @mock.patch('process_general_data.save_csv_file')
@@ -113,7 +120,6 @@ class ProcessGeneralDataTest(TestCase):
         save_csv_file.side_effect = None
         with self.assertRaises(SystemExit) as cm:
             main(['process_general_data', 'input', '--upper-bound', '2020-10-10'])
-            self.assertEqual(cm.exception.code, 2)
 
     @mock.patch('process_general_data.config')
     @mock.patch('process_general_data.save_csv_file')
@@ -132,7 +138,6 @@ class ProcessGeneralDataTest(TestCase):
         save_csv_file.side_effect = None
         with self.assertRaises(SystemExit) as cm:
             main(['process_general_data', 'input', '--lower-bound', '2021-10-10', '--upper-bound', '2020-10-10'])
-            self.assertEqual(cm.exception.code, 2)
 
     @mock.patch('process_general_data.config')
     @mock.patch('process_general_data.save_csv_file')
@@ -149,12 +154,26 @@ class ProcessGeneralDataTest(TestCase):
         get_files.return_value = [os.path.join(self.data_path, '2018-10-01.general')]
         p_data.return_value = ['2018-10-01', '5930344']
         save_csv_file.side_effect = None
+        main(['process_general_data', 'input', '--lower-bound', '2018-10-01', '--upper-bound', '2020-01-01'])
+
+    @mock.patch('process_general_data.config')
+    @mock.patch('process_general_data.save_csv_file')
+    @mock.patch('process_general_data.process_general_data')
+    @mock.patch('process_general_data.get_files')
+    @mock.patch('process_general_data.OUTPUT_PATH')
+    @mock.patch('process_general_data.INPUTS_PATH')
+    @mock.patch('process_general_data.DIR_PATH')
+    def test_main_with_lower_and_upper_bound_pass(self, dir_path, input_path, output_path, get_files,
+                                                  p_data, save_csv_file, config):
+        dir_path.return_value = self.data_path
+        input_path.return_value = self.data_path
+        output_path.return_value = self.data_path
+        get_files.return_value = [os.path.join(self.data_path, '2018-10-01.general')]
+        p_data.return_value = ['2018-10-01', '5930344']
+        save_csv_file.side_effect = None
         main(['process_general_data', 'input', '--lower-bound', '2019-10-01', '--upper-bound', '2020-01-01'])
 
     def tearDown(self):
-        test_csv = os.path.join(self.data_path, 'test.csv')
         test_gz = os.path.join(self.data_path, 'test.gz')
-        if os.path.exists(test_csv):
-            os.remove(test_csv)
         if os.path.exists(test_gz):
             os.remove(test_gz)

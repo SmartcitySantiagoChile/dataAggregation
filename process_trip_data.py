@@ -27,24 +27,22 @@ OUTPUT_NAME = 'viajesEntreComunas'
 def process_trip_data(file_path):
     zone_dict = get_zone_dict(os.path.join(INPUTS_PATH, 'zone_dictionary.csv'))
     trip_data = defaultdict(lambda: defaultdict(float))
-    with get_file_object(file_path) as f:
-        try:
-            next(f)  # skip header
-        except StopIteration:
-            logger.error("Error: file ", f.name, "is empty.")
-            return None
-
+    try:
+        f = get_file_object(file_path)
+        next(f)  # skip header
         delimiter = str('|')
         reader = csv.reader(f, delimiter=delimiter)
-
-        # skip first row
         next(reader)
-
-        for row in reader:
-            trip_value = float(row[1])
-            start_commune = zone_dict[row[24]]
-            end_commune = zone_dict[row[25]]
-            trip_data[start_commune][end_commune] += trip_value
+    except (IndexError, StopIteration):
+        logger.error("Error: file ", file_path, "is empty.")
+        return None
+    
+    for row in reader:
+        trip_value = float(row[1])
+        start_commune = zone_dict[row[24]]
+        end_commune = zone_dict[row[25]]
+        trip_data[start_commune][end_commune] += trip_value
+    f.close()
     return dict(trip_data)
 
 

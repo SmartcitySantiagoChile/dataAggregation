@@ -15,6 +15,8 @@ class ProcessTripDataTest(TestCase):
         self.file_path_gz = os.path.join(dir_path, 'trip_files/2016-03-14.trip.gz')
         self.file_path_zip = os.path.join(dir_path, 'trip_files/2016-03-14.trip.zip')
         self.file_path_without_data = os.path.join(dir_path, 'trip_files/2016-nodata.trip')
+        self.file_path_empty_zip = os.path.join(dir_path, 'trip_files/2019-10-nodata.trip.zip')
+        self.file_path_empty_gz = os.path.join(dir_path, 'trip_files/2019-10-nodata.trip.gz')
         self.zone777_path = os.path.join(dir_path, 'trip_files/zone_dictionary.csv')
         logging.disable(logging.CRITICAL)
 
@@ -47,6 +49,12 @@ class ProcessTripDataTest(TestCase):
 
     def test_process_trip_data_nodata(self):
         self.assertIsNone(process_trip_data(self.file_path_without_data))
+
+    def test_process__trip_data_empty_zip(self):
+        self.assertIsNone(process_trip_data(self.file_path_empty_zip))
+
+    def test_process__trip_data_empty_gz(self):
+        self.assertIsNone(process_trip_data(self.file_path_empty_gz))
 
     def test_save_csv_file(self):
         data = [self.file_path]
@@ -114,7 +122,6 @@ class ProcessTripDataTest(TestCase):
         save_csv_file.side_effect = None
         with self.assertRaises(SystemExit) as cm:
             main(['process_trip_data', 'input', '--lower-bound', '2020-10-10'])
-            self.assertEqual(cm.exception.code, 2)
 
     @mock.patch('process_trip_data.config')
     @mock.patch('process_trip_data.save_csv_file')
@@ -133,7 +140,6 @@ class ProcessTripDataTest(TestCase):
         save_csv_file.side_effect = None
         with self.assertRaises(SystemExit) as cm:
             main(['process_trip_data', 'input', '--upper-bound', '2020-10-10'])
-            self.assertEqual(cm.exception.code, 2)
 
     @mock.patch('process_trip_data.config')
     @mock.patch('process_trip_data.save_csv_file')
@@ -152,7 +158,6 @@ class ProcessTripDataTest(TestCase):
         save_csv_file.side_effect = None
         with self.assertRaises(SystemExit) as cm:
             main(['process_trip_data', 'input', '--lower-bound', '2021-10-10', '--upper-bound', '2020-10-10'])
-            self.assertEqual(cm.exception.code, 2)
 
     @mock.patch('process_trip_data.config')
     @mock.patch('process_trip_data.save_csv_file')
@@ -171,11 +176,8 @@ class ProcessTripDataTest(TestCase):
         save_csv_file.side_effect = None
         main(['process_trip_data', 'input', '--lower-bound', '2019-10-01', '--upper-bound', '2020-01-01'])
 
-
     def tearDown(self):
-        test_csv = os.path.join(self.data_path, 'test.csv')
         test_gz = os.path.join(self.data_path, 'test.gz')
-        if os.path.exists(test_csv):
-            os.remove(test_csv)
+
         if os.path.exists(test_gz):
             os.remove(test_gz)

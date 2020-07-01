@@ -16,7 +16,8 @@ class TestUtils(TestCase):
     def test_get_files(self):
         expected_files = list(map(lambda x: os.path.join(self.data_path, x),
                                   ['2018-10-01.general', '2018-10-01.general.gz',
-                                   '2018-10-01.general.zip', '2018-nodata.general']))
+                                   '2018-10-01.general.zip', '2018-nodata.general', '2019-10-nodata.general.gz',
+                                   '2019-10-nodata.general.zip']))
         self.assertEqual(expected_files, get_files('general', self.data_path))
 
     @mock.patch('utils.AWSSession')
