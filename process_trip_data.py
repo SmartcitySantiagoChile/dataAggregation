@@ -63,7 +63,7 @@ def save_csv_file(data, output, output_filename):
     csv_name = '{0}.csv'.format(name)
     gz_name = '{0}.csv.gz'.format(name)
     gz_actual_name = '{0}.gz'.format(name)
-    with open(csv_name, 'w', newline='\n', encoding='UTF-8') as outfile:
+    with open(csv_name, 'w', newline='\n') as outfile:
         w = csv.writer(outfile)
         w.writerow(['Fecha', 'Comuna_origen', 'Comuna_destino', 'N°_viajes_expandidos'])
         for d in data:
@@ -122,7 +122,7 @@ def main(argv):
     # filter between dates
     if lower_bound:
         files_path = [file for file in files_path if
-                      lower_bound <= datetime.strptime(''.join(file.split('/')[-1]).split(".")[0],
+                      lower_bound <= datetime.strptime(os.path.basename(file).split(".")[0],
                                                        '%Y-%m-%d') <= upper_bound]
     # process data and save output
     save_csv_file(files_path, output_path, OUTPUT_NAME)
