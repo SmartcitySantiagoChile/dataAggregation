@@ -41,7 +41,7 @@ def get_files(file_type, path):
     files = []
     for file in types:
         files.extend(glob.glob(os.path.join(path, file)))
-    files.sort(key=lambda x: ''.join(x.split("/")[-1]).split(".")[0])
+    files.sort(key=lambda x: ''.join(os.path.basename(x)).split(".")[0])
     return files
 
 

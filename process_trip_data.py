@@ -67,7 +67,7 @@ def save_csv_file(data, output, output_filename):
         w = csv.writer(outfile)
         w.writerow(['Fecha', 'Comuna_origen', 'Comuna_destino', 'N°_viajes_expandidos'])
         for d in data:
-            date = "".join(d.split("/")[-1]).split(".")[0]
+            date = "".join(os.path.basename(d)).split(".")[0]
             data_dict = process_trip_data(d)
             if data_dict:
                 for start_commune in data_dict:
