@@ -24,6 +24,7 @@ BUCKET_NAME = config('MISCELLANEOUS_BUCKET_NAME')
 OUTPUT_NAME = 'viajesEntreComunas'
 
 
+
 def process_trip_data(file_path):
     zone_dict = get_zone_dict(os.path.join(INPUTS_PATH, 'zone_dictionary.csv'))
     trip_data = defaultdict(lambda: defaultdict(float))
@@ -34,7 +35,7 @@ def process_trip_data(file_path):
         reader = csv.reader(f, delimiter=delimiter)
         next(reader)
     except (IndexError, StopIteration):
-        logger.error("Error: file ", file_path, "is empty.")
+        logging.warning("{0} is empty.".format(os.path.basename(file_path)))
         return None
     
     for row in reader:

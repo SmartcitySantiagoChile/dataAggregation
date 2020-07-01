@@ -31,7 +31,7 @@ def process_general_data(file_path):
         reader = csv.reader(f, delimiter=delimiter)
         row = next(reader)
     except (IndexError, StopIteration):
-        logger.error("Error: file ", file_path, "is empty.")
+        logging.warning("{0} is empty.".format(os.path.basename(file_path)))
         return None
     f.close()
     return [row[0], row[12]]
