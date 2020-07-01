@@ -70,7 +70,7 @@ class ProcessTripDataTest(TestCase):
                     ['2016-03-14', 'CERRILLOS', 'MAIPU', '1.36'],
                     ['2016-03-14', 'MAIPU', 'CERRILLOS', '1.41'],
                     ['2016-03-14', 'LAS CONDES', 'SANTIAGO', '1.33']]
-        with gzip.open(os.path.join(self.data_path, output_filename) + '.gz', 'rt') as outfile:
+        with gzip.open(os.path.join(self.data_path, output_filename) + '.gz', 'rt', encoding='UTF-8') as outfile:
             reader = csv.reader(outfile)
             for row in expected:
                 self.assertEqual(row, next(reader))
