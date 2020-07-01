@@ -61,26 +61,48 @@ To verify that everything works well on your computer you can run these automati
 python -m unittest
 ```
 
-## Usage    
+## Usage   
+## General Data
+To run process_general_data you need to execute:
 
-To run dataAggregation you need to execute:
-
-
-python process_general_data.py [path] [--output OUTPUT] [--send-to-s3]
-
+```
+python process_general_data.py [path] [--output OUTPUT] [--send-to-s3] [--lower bound LOWER-BOUND] [--upper bound UPPER-BOUND]
 ```
 - [path] path with files.
 - [--output OUTPUT] output file path.
 - [--send-to-s3]  send file to S3 bucket
-```
-
+- [--lower-bound LOWER-BOUND] lower-bound date in YY-MM-DD format
+- [--upper bound UPPER-BOUND] upper-bound date in YY-MM-DD format
 
 
 The output file will be a csv file saved at choosen output path or dataAggregation/output by default
-## Help
+### Help
 
 To get help with command you need to execute:
 
 ```
 python process_general_data.py -h 
+```
+
+
+## Trip Data
+To run dataAggregation you need to execute:
+
+```
+python process_trip_data.py [path] [--output OUTPUT] [--send-to-s3] [--lower bound LOWER-BOUND] [--upper bound UPPER-BOUND]
+```
+- [path] path with files.
+- [--output OUTPUT] output file path.
+- [--send-to-s3]  send file to S3 bucket
+- [--lower-bound LOWER-BOUND] lower-bound date in YY-MM-DD format
+- [--upper bound UPPER-BOUND] upper-bound date in YY-MM-DD format
+
+
+The output file will be a csv file saved at choosen output path or dataAggregation/output by default
+### Help
+
+To get help with command you need to execute:
+
+```
+python process_trip_data.py -h 
 ```
