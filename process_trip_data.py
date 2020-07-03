@@ -1,13 +1,13 @@
 # -*- coding: utf8 -*-
 import argparse
 import csv
-from datetime import datetime
 import gzip
 import logging
 import os
 import shutil
 import sys
 from collections import defaultdict
+from datetime import datetime
 
 from decouple import config
 from pyfiglet import Figlet
@@ -24,7 +24,6 @@ BUCKET_NAME = config('MISCELLANEOUS_BUCKET_NAME')
 OUTPUT_NAME = 'viajesEntreComunas'
 
 
-
 def process_trip_data(file_path):
     zone_dict = get_zone_dict(os.path.join(INPUTS_PATH, 'zone_dictionary.csv'))
     trip_data = defaultdict(lambda: defaultdict(float))
@@ -37,7 +36,7 @@ def process_trip_data(file_path):
     except (IndexError, StopIteration):
         logging.warning("{0} is empty.".format(os.path.basename(file_path)))
         return None
-    
+
     for row in reader:
         trip_value = float(row[1])
         start_commune = zone_dict[row[24]]
@@ -64,14 +63,17 @@ def save_csv_file(data, output, output_filename):
     csv_name = '{0}.csv'.format(name)
     gz_name = '{0}.csv.gz'.format(name)
     gz_actual_name = '{0}.gz'.format(name)
-    with open(csv_name, 'w', newline='\n') as outfile:
+    with open(csv_name, 'w+', newline='\n') as outfile:
         w = csv.writer(outfile)
         w.writerow(['Fecha', 'Comuna_origen', 'Comuna_destino', 'N°_viajes_expandidos'])
-        for d in data:
-            date = "".join(os.path.basename(d)).split(".")[0]
-            logger.info("Processing date {0}...".format(date))
-            data_dict = process_trip_data(d)
-            if data_dict:
+
+    for d in data:
+        date = "".join(os.path.basename(d)).split(".")[0]
+        logger.info("Processing date {0}...".format(date))
+        data_dict = process_trip_data(d)
+        if data_dict:
+            with open(csv_name, 'a', newline='\n') as outfile:
+                w = csv.writer(outfile)
                 for start_commune in data_dict:
                     for end_commune in data_dict[start_commune].keys():
                         w.writerow([date, start_commune, end_commune, data_dict[start_commune][end_commune]])
