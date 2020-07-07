@@ -72,7 +72,7 @@ def save_csv_file(data, output, output_filename):
         logger.info("Processing date {0}...".format(date))
         data_dict = process_trip_data(d)
         if data_dict:
-            with open(csv_name, 'a', newline='\n') as outfile:
+            with open(csv_name, 'a+', newline='\n') as outfile:
                 w = csv.writer(outfile)
                 for start_commune in data_dict:
                     for end_commune in data_dict[start_commune].keys():
