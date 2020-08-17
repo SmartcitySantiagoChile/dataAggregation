@@ -20,25 +20,21 @@ class ProcessTripDataTest(TestCase):
         logging.disable(logging.CRITICAL)
 
     def test_process_trip_data(self):
-        expected_dict = {'ÑUÑOA': {'RECOLETA': 1.31}, 'RECOLETA': {'SANTIAGO': 1.33},
-                         'SANTIAGO': {'ÑUÑOA': 1.31, 'SANTIAGO': 1.23}, 'LA FLORIDA': {'LA FLORIDA': 1.34},
-                         'CERRILLOS': {'MAIPU': 1.36}, 'MAIPU': {'CERRILLOS': 1.41}, 'LAS CONDES': {'SANTIAGO': 1.33}}
-
-        print(process_trip_data(self.file_path))
+        expected_dict = {'Ñuñoa': {'Recoleta': 1.31}, 'Recoleta': {'Santiago': 1.33},
+                         'Santiago': {'Ñuñoa': 1.31, 'Santiago': 1.23}, 'La Florida': {'La Florida': 1.34},
+                         'Cerrillos': {'Maipú': 1.36}, 'Maipú': {'Cerrillos': 1.41}, 'Las Condes': {'Santiago': 1.33}}
         self.assertEqual(expected_dict, dict(process_trip_data(self.file_path)))
 
     def test_process_tripl_data_correct_gz(self):
-        expected_dict = {'ÑUÑOA': {'RECOLETA': 1.31}, 'RECOLETA': {'SANTIAGO': 1.33},
-                         'SANTIAGO': {'ÑUÑOA': 1.31, 'SANTIAGO': 1.23}, 'LA FLORIDA': {'LA FLORIDA': 1.34},
-                         'CERRILLOS': {'MAIPU': 1.36}, 'MAIPU': {'CERRILLOS': 1.41}, 'LAS CONDES': {'SANTIAGO': 1.33}}
-
+        expected_dict = {'Ñuñoa': {'Recoleta': 1.31}, 'Recoleta': {'Santiago': 1.33},
+                         'Santiago': {'Ñuñoa': 1.31, 'Santiago': 1.23}, 'La Florida': {'La Florida': 1.34},
+                         'Cerrillos': {'Maipú': 1.36}, 'Maipú': {'Cerrillos': 1.41}, 'Las Condes': {'Santiago': 1.33}}
         self.assertDictEqual(expected_dict, process_trip_data(self.file_path_gz))
 
     def test_process_trip_data_correct_zip(self):
-        expected_dict = {'ÑUÑOA': {'RECOLETA': 1.31}, 'RECOLETA': {'SANTIAGO': 1.33},
-                         'SANTIAGO': {'ÑUÑOA': 1.31, 'SANTIAGO': 1.23}, 'LA FLORIDA': {'LA FLORIDA': 1.34},
-                         'CERRILLOS': {'MAIPU': 1.36}, 'MAIPU': {'CERRILLOS': 1.41}, 'LAS CONDES': {'SANTIAGO': 1.33}}
-
+        expected_dict = {'Ñuñoa': {'Recoleta': 1.31}, 'Recoleta': {'Santiago': 1.33},
+                         'Santiago': {'Ñuñoa': 1.31, 'Santiago': 1.23}, 'La Florida': {'La Florida': 1.34},
+                         'Cerrillos': {'Maipú': 1.36}, 'Maipú': {'Cerrillos': 1.41}, 'Las Condes': {'Santiago': 1.33}}
         self.assertDictEqual(expected_dict, process_trip_data(self.file_path_zip))
 
     def test_process_trip_data_nodata(self):
@@ -56,14 +52,14 @@ class ProcessTripDataTest(TestCase):
         output_filename = 'test'
         save_csv_file(data, output, output_filename)
         expected = [['Fecha', 'Comuna_origen', 'Comuna_destino', 'N°_viajes_expandidos'],
-                    ['2016-03-14', 'ÑUÑOA', 'RECOLETA', '1.31'],
-                    ['2016-03-14', 'RECOLETA', 'SANTIAGO', '1.33'],
-                    ['2016-03-14', 'SANTIAGO', 'ÑUÑOA', '1.31'],
-                    ['2016-03-14', 'SANTIAGO', 'SANTIAGO', '1.23'],
-                    ['2016-03-14', 'LA FLORIDA', 'LA FLORIDA', '1.34'],
-                    ['2016-03-14', 'CERRILLOS', 'MAIPU', '1.36'],
-                    ['2016-03-14', 'MAIPU', 'CERRILLOS', '1.41'],
-                    ['2016-03-14', 'LAS CONDES', 'SANTIAGO', '1.33']]
+                    ['2016-03-14', 'Ñuñoa', 'Recoleta', '1.31'],
+                    ['2016-03-14', 'Recoleta', 'Santiago', '1.33'],
+                    ['2016-03-14', 'Santiago', 'Ñuñoa', '1.31'],
+                    ['2016-03-14', 'Santiago', 'Santiago', '1.23'],
+                    ['2016-03-14', 'La Florida', 'La Florida', '1.34'],
+                    ['2016-03-14', 'Cerrillos', 'Maipú', '1.36'],
+                    ['2016-03-14', 'Maipú', 'Cerrillos', '1.41'],
+                    ['2016-03-14', 'Las Condes', 'Santiago', '1.33']]
         with gzip.open(os.path.join(self.data_path, output_filename) + '.gz', 'rt') as outfile:
             reader = csv.reader(outfile)
             for row in expected:
@@ -75,14 +71,14 @@ class ProcessTripDataTest(TestCase):
         output_filename = 'test'
         save_csv_file(data, output, output_filename)
         expected = [['Fecha', 'Comuna_origen', 'Comuna_destino', 'N°_viajes_expandidos'],
-                    ['2016-03-14', 'ÑUÑOA', 'RECOLETA', '1.31'],
-                    ['2016-03-14', 'RECOLETA', 'SANTIAGO', '1.33'],
-                    ['2016-03-14', 'SANTIAGO', 'ÑUÑOA', '1.31'],
-                    ['2016-03-14', 'SANTIAGO', 'SANTIAGO', '1.23'],
-                    ['2016-03-14', 'LA FLORIDA', 'LA FLORIDA', '1.34'],
-                    ['2016-03-14', 'CERRILLOS', 'MAIPU', '1.36'],
-                    ['2016-03-14', 'MAIPU', 'CERRILLOS', '1.41'],
-                    ['2016-03-14', 'LAS CONDES', 'SANTIAGO', '1.33']]
+                    ['2016-03-14', 'Ñuñoa', 'Recoleta', '1.31'],
+                    ['2016-03-14', 'Recoleta', 'Santiago', '1.33'],
+                    ['2016-03-14', 'Santiago', 'Ñuñoa', '1.31'],
+                    ['2016-03-14', 'Santiago', 'Santiago', '1.23'],
+                    ['2016-03-14', 'La Florida', 'La Florida', '1.34'],
+                    ['2016-03-14', 'Cerrillos', 'Maipú', '1.36'],
+                    ['2016-03-14', 'Maipú', 'Cerrillos', '1.41'],
+                    ['2016-03-14', 'Las Condes', 'Santiago', '1.33']]
         with gzip.open(os.path.join(self.data_path, output_filename) + '.gz', 'rt') as outfile:
             reader = csv.reader(outfile)
             for row in expected:
