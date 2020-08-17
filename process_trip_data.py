@@ -2,6 +2,7 @@
 import argparse
 import csv
 import gzip
+import json
 import logging
 import os
 import shutil
@@ -25,37 +26,30 @@ OUTPUT_NAME = 'viajesEntreComunas'
 
 
 def process_trip_data(file_path):
-    zone_dict = get_zone_dict(os.path.join(INPUTS_PATH, 'zone_dictionary.csv'))
     trip_data = defaultdict(lambda: defaultdict(float))
-    try:
-        f = get_file_object(file_path)
-        next(f)  # skip header
-        delimiter = str('|')
-        reader = csv.reader(f, delimiter=delimiter)
-        next(reader)
-    except (IndexError, StopIteration):
-        logging.warning("{0} is empty.".format(os.path.basename(file_path)))
-        return None
+    with open(os.path.join(INPUTS_PATH, 'communes.json')) as communes_json:
+        communes_dict = json.load(communes_json)
+        try:
+            f = get_file_object(file_path)
+            next(f)  # skip header
+            delimiter = str('|')
+            reader = csv.reader(f, delimiter=delimiter)
+            next(reader)
+        except (IndexError, StopIteration):
+            logging.warning("{0} is empty.".format(os.path.basename(file_path)))
+            return None
 
-    for row in reader:
-        trip_value = float(row[1])
-        start_commune = zone_dict[row[24]]
-        end_commune = zone_dict[row[25]]
-        trip_data[start_commune][end_commune] += trip_value
-    f.close()
+        for row in reader:
+            try:
+                trip_value = float(row[1])
+                start_commune = communes_dict[row[22]]
+                end_commune = communes_dict[row[23]]
+                trip_data[start_commune][end_commune] += trip_value
+            except KeyError:
+                print(row[22])
+                print(row[23])
+        f.close()
     return dict(trip_data)
-
-
-def get_zone_dict(path):
-    with open(path, 'r', newline='\n', encoding='UTF-8') as inputfile:
-        csv_dict = csv.reader(inputfile)
-        next(csv_dict)
-        zone_dict = {}
-        for line in csv_dict:
-            code = line[3]
-            commune = line[6]
-            zone_dict[code] = commune
-        return zone_dict
 
 
 def save_csv_file(data, output, output_filename):

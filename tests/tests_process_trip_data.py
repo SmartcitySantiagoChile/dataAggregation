@@ -4,7 +4,7 @@ import logging
 import os
 from unittest import TestCase, mock
 
-from process_trip_data import process_trip_data, save_csv_file, get_zone_dict, main
+from process_trip_data import process_trip_data, save_csv_file, main
 
 
 class ProcessTripDataTest(TestCase):
@@ -17,21 +17,15 @@ class ProcessTripDataTest(TestCase):
         self.file_path_without_data = os.path.join(dir_path, 'trip_files/2016-nodata.trip')
         self.file_path_empty_zip = os.path.join(dir_path, 'trip_files/2019-10-nodata.trip.zip')
         self.file_path_empty_gz = os.path.join(dir_path, 'trip_files/2019-10-nodata.trip.gz')
-        self.zone777_path = os.path.join(dir_path, 'trip_files/zone_dictionary.csv')
         logging.disable(logging.CRITICAL)
-
-    def test_get_zone_dict(self):
-        expected_dict = {'135': 'CERRO NAVIA', '56': 'RENCA', '522': 'PUDAHUEL', '137': 'CERRO NAVIA', '837': 'RENCA',
-                         '136': 'CERRO NAVIA'}
-
-        self.assertDictEqual(expected_dict, get_zone_dict(self.zone777_path))
 
     def test_process_trip_data(self):
         expected_dict = {'ÑUÑOA': {'RECOLETA': 1.31}, 'RECOLETA': {'SANTIAGO': 1.33},
                          'SANTIAGO': {'ÑUÑOA': 1.31, 'SANTIAGO': 1.23}, 'LA FLORIDA': {'LA FLORIDA': 1.34},
                          'CERRILLOS': {'MAIPU': 1.36}, 'MAIPU': {'CERRILLOS': 1.41}, 'LAS CONDES': {'SANTIAGO': 1.33}}
 
-        self.assertDictEqual(expected_dict, process_trip_data(self.file_path))
+        print(process_trip_data(self.file_path))
+        self.assertEqual(expected_dict, dict(process_trip_data(self.file_path)))
 
     def test_process_tripl_data_correct_gz(self):
         expected_dict = {'ÑUÑOA': {'RECOLETA': 1.31}, 'RECOLETA': {'SANTIAGO': 1.33},
