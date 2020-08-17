@@ -25,6 +25,14 @@ BUCKET_NAME = config('MISCELLANEOUS_BUCKET_NAME')
 OUTPUT_NAME = 'viajesEntreComunas'
 
 
+def get_commune_for_metrotren_station(row):
+    is_metrotren = False
+    start_commune = row[22]
+    end_commune = row[23]
+    if start_commune == -1:
+        is_metrotren = True
+
+
 def process_trip_data(file_path):
     trip_data = defaultdict(lambda: defaultdict(float))
     with open(os.path.join(INPUTS_PATH, 'communes.json')) as communes_json:
@@ -46,6 +54,7 @@ def process_trip_data(file_path):
                 end_commune = communes_dict[row[23]]
                 trip_data[start_commune][end_commune] += trip_value
             except KeyError:
+                print(row)
                 print(row[22])
                 print(row[23])
         f.close()

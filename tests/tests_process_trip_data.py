@@ -4,7 +4,7 @@ import logging
 import os
 from unittest import TestCase, mock
 
-from process_trip_data import process_trip_data, save_csv_file, main
+from process_trip_data import process_trip_data, save_csv_file, main, get_commune_for_metrotren_station
 
 
 class ProcessTripDataTest(TestCase):
@@ -18,6 +18,17 @@ class ProcessTripDataTest(TestCase):
         self.file_path_empty_zip = os.path.join(dir_path, 'trip_files/2019-10-nodata.trip.zip')
         self.file_path_empty_gz = os.path.join(dir_path, 'trip_files/2019-10-nodata.trip.gz')
         logging.disable(logging.CRITICAL)
+
+    def test_get_commune_for_metrotren_station(self):
+        metrotren_row = ['2', '2.46', '2', '27.7000', '20807.70', '2330.00', '2020-03-01 10:53:17',
+                         '2020-03-01 11:20:59', '21', '22', '25', '25', '1', '4', '-1', '-1', 'T232 00R', '-', '-', '-',
+                         'L-30-13-25-OP', 'Estacion Alameda', '8', '-1', '562', '78', '5', '2020-03-01 10:53:17',
+                         '2020-03-01 10:59:03', '-', '-', '2020-03-01 10:56:54', '2020-03-01 11:20:59', '-', '-', '562',
+                         '560', '-', '-', '560', '78', '-', '-', 'L-30-13-25-OP', 'Estacion Nos', '-', '-',
+                         'L-30-51-95-SN', 'Estacion Alameda', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '']
+
+        is_metrotren, communes = get_commune_for_metrotren_station(metrotren_row)
+        self.assertTrue(is_metrotren)
 
     def test_process_trip_data(self):
         expected_dict = {'Ñuñoa': {'Recoleta': 1.31}, 'Recoleta': {'Santiago': 1.33},
