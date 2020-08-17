@@ -29,9 +29,9 @@ class ProcessTripDataTest(TestCase):
 
         expected_start_commune = "Pedro Aguirre Cerda"
         expected_end_commune = "Estación Central"
-        is_metrotren, start_commune, end_commune = get_commune_for_extra_location(metrotren_row, None,
+        errors, start_commune, end_commune = get_commune_for_extra_location(metrotren_row, None,
                                                                                   None)
-        self.assertTrue(is_metrotren)
+        self.assertIsNotNone(errors)
         self.assertEqual(expected_start_commune, start_commune)
         self.assertEqual(expected_end_commune, end_commune)
 
@@ -47,7 +47,7 @@ class ProcessTripDataTest(TestCase):
         expected_end_commune = "Estación Central"
         is_metrotren, start_commune, end_commune = get_commune_for_extra_location(metrotren_row, "San Bernardo",
                                                                                   None)
-        self.assertTrue(is_metrotren)
+        self.assertIsNotNone(is_metrotren)
         self.assertEqual(expected_start_commune, start_commune)
         self.assertEqual(expected_end_commune, end_commune)
 
@@ -62,7 +62,8 @@ class ProcessTripDataTest(TestCase):
         expected_start_commune = "Estación Central"
         is_metrotren, start_commune, end_commune = get_commune_for_extra_location(row, expected_start_commune,
                                                                                   None)
-        self.assertFalse(is_metrotren)
+        expected_error = {'EXAMPLE_WITH_NO_COMMUNE'}
+        self.assertEqual(expected_error, is_metrotren)
         self.assertEqual(expected_start_commune, start_commune)
         self.assertIsNone(end_commune)
 
@@ -71,28 +72,28 @@ class ProcessTripDataTest(TestCase):
                          'Santiago': {'Ñuñoa': 1.31, 'Santiago': 1.23}, 'La Florida': {'La Florida': 1.34},
                          'Cerrillos': {'Maipú': 1.36}, 'Maipú': {'Cerrillos': 1.41}, 'Las Condes': {'Santiago': 1.33},
                          'San Bernardo': {'Estación Central': 2.46}, 'Pedro Aguirre Cerda': {'Estación Central': 1.77}}
-        self.assertEqual(expected_dict, process_trip_data(self.file_path))
+        self.assertEqual(expected_dict, process_trip_data(self.file_path)[0])
 
     def test_process_tripl_data_correct_gz(self):
         expected_dict = {'Ñuñoa': {'Recoleta': 1.31}, 'Recoleta': {'Santiago': 1.33},
                          'Santiago': {'Ñuñoa': 1.31, 'Santiago': 1.23}, 'La Florida': {'La Florida': 1.34},
                          'Cerrillos': {'Maipú': 1.36}, 'Maipú': {'Cerrillos': 1.41}, 'Las Condes': {'Santiago': 1.33}}
-        self.assertDictEqual(expected_dict, process_trip_data(self.file_path_gz))
+        self.assertDictEqual(expected_dict, process_trip_data(self.file_path_gz)[0])
 
     def test_process_trip_data_correct_zip(self):
         expected_dict = {'Ñuñoa': {'Recoleta': 1.31}, 'Recoleta': {'Santiago': 1.33},
                          'Santiago': {'Ñuñoa': 1.31, 'Santiago': 1.23}, 'La Florida': {'La Florida': 1.34},
                          'Cerrillos': {'Maipú': 1.36}, 'Maipú': {'Cerrillos': 1.41}, 'Las Condes': {'Santiago': 1.33}}
-        self.assertDictEqual(expected_dict, process_trip_data(self.file_path_zip))
+        self.assertDictEqual(expected_dict, process_trip_data(self.file_path_zip)[0])
 
     def test_process_trip_data_nodata(self):
-        self.assertIsNone(process_trip_data(self.file_path_without_data))
+        self.assertIsNone(process_trip_data(self.file_path_without_data)[0])
 
     def test_process__trip_data_empty_zip(self):
-        self.assertIsNone(process_trip_data(self.file_path_empty_zip))
+        self.assertIsNone(process_trip_data(self.file_path_empty_zip)[0])
 
     def test_process__trip_data_empty_gz(self):
-        self.assertIsNone(process_trip_data(self.file_path_empty_gz))
+        self.assertIsNone(process_trip_data(self.file_path_empty_gz)[0])
 
     def test_save_csv_file(self):
         data = [self.file_path, self.file_path_empty_gz, self.file_path_empty_zip, self.file_path_without_data]
