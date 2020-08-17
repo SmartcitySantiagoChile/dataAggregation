@@ -4,7 +4,7 @@ import logging
 import os
 from unittest import TestCase, mock
 
-from process_trip_data import process_trip_data, save_csv_file, main, get_commune_for_metrotren_station
+from process_trip_data import process_trip_data, save_csv_file, main, get_commune_for_extra_location
 
 
 class ProcessTripDataTest(TestCase):
@@ -19,7 +19,7 @@ class ProcessTripDataTest(TestCase):
         self.file_path_empty_gz = os.path.join(dir_path, 'trip_files/2019-10-nodata.trip.gz')
         logging.disable(logging.CRITICAL)
 
-    def test_get_commune_for_metrotren_station_start_station(self):
+    def test_get_commune_for_extra_location_start_station(self):
         metrotren_row = ['2', '1.77', '1', '3.5667', '2756.35', '0.00', '2020-03-01 11:18:16', '2020-03-01 11:21:50',
                          '22', '22', '25', '25', '4', '-1', '-1', '-1', '-', '-', '-', '-', 'Estacion Lo Valledor',
                          'Estacion Alameda', '-1', '-1', '400', '78', '4', '2020-03-01 11:18:16', '-', '-', '-',
@@ -29,13 +29,13 @@ class ProcessTripDataTest(TestCase):
 
         expected_start_commune = "Pedro Aguirre Cerda"
         expected_end_commune = "Estación Central"
-        is_metrotren, start_commune, end_commune = get_commune_for_metrotren_station(metrotren_row, None,
-                                                                                     None)
+        is_metrotren, start_commune, end_commune = get_commune_for_extra_location(metrotren_row, None,
+                                                                                  None)
         self.assertTrue(is_metrotren)
         self.assertEqual(expected_start_commune, start_commune)
         self.assertEqual(expected_end_commune, end_commune)
 
-    def test_get_commune_for_metrotren_station_end_station(self):
+    def test_get_commune_for_extra_location_end_station(self):
         metrotren_row = ['2', '2.46', '2', '27.7000', '20807.70', '2330.00', '2020-03-01 10:53:17',
                          '2020-03-01 11:20:59', '21', '22', '25', '25', '1', '4', '-1', '-1', 'T232 00R', '-', '-', '-',
                          'L-30-13-25-OP', 'Estacion Alameda', '8', '-1', '562', '78', '5', '2020-03-01 10:53:17',
@@ -45,18 +45,23 @@ class ProcessTripDataTest(TestCase):
 
         expected_start_commune = "San Bernardo"
         expected_end_commune = "Estación Central"
-        is_metrotren, start_commune, end_commune = get_commune_for_metrotren_station(metrotren_row, "San Bernardo",
-                                                                                     None)
+        is_metrotren, start_commune, end_commune = get_commune_for_extra_location(metrotren_row, "San Bernardo",
+                                                                                  None)
         self.assertTrue(is_metrotren)
         self.assertEqual(expected_start_commune, start_commune)
         self.assertEqual(expected_end_commune, end_commune)
 
-    def test_get_commune_for_metrotren_station_no_commune(self):
-        row = ['2', '1.76', '2', '69.5167', '13760.85', '0', '2020-03-01 12:11:32', '2020-03-01 13:21:03', '24', '26', '25', '25', '2', '1', '-1', '-1', '-', '-', '-', '-', 'UNIVERSIDAD DE SANTIAGO', 'L-23-15-41-PO', '16', '-1', '78', '657', '3', '2020-03-01 12:11:32', '2020-03-01 13:04:18', '-', '-', '-', '2020-03-01 13:21:03', '-', '-', '78', '744', '-', '-', '-', '657', '-', '-', 'UNIVERSIDAD DE SANTIAGO', 'L-22-4-20-PO', '-', '-', '-', 'L-23-15-41-PO', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '']
+    def test_get_commune_for_extra_location_no_commune(self):
+        row = ['2', '1.76', '2', '69.5167', '13760.85', '0', '2020-03-01 12:11:32', '2020-03-01 13:21:03', '24', '26',
+               '25', '25', '2', '1', '-1', '-1', '-', '-', '-', '-', 'UNIVERSIDAD DE SANTIAGO',
+               'EXAMPLE_WITH_NO_COMMUNE', '16', '-1', '78', '657', '3', '2020-03-01 12:11:32', '2020-03-01 13:04:18',
+               '-', '-', '-', '2020-03-01 13:21:03', '-', '-', '78', '744', '-', '-', '-', '657', '-', '-',
+               'UNIVERSIDAD DE SANTIAGO', 'L-22-4-20-PO', '-', '-', '-', 'L-23-15-41-PO', '-', '-', '-', '-', '-', '-',
+               '-', '-', '-', '-', '']
 
         expected_start_commune = "Estación Central"
-        is_metrotren, start_commune, end_commune = get_commune_for_metrotren_station(row, expected_start_commune,
-                                                                                     None)
+        is_metrotren, start_commune, end_commune = get_commune_for_extra_location(row, expected_start_commune,
+                                                                                  None)
         self.assertFalse(is_metrotren)
         self.assertEqual(expected_start_commune, start_commune)
         self.assertIsNone(end_commune)

@@ -25,22 +25,22 @@ BUCKET_NAME = config('MISCELLANEOUS_BUCKET_NAME')
 OUTPUT_NAME = 'viajesEntreComunas'
 
 
-def get_commune_for_metrotren_station(row, start_commune, end_commune):
-    is_metrotren = True
-    with open(os.path.join(INPUTS_PATH, 'metrotren_communes.json')) as communes_json:
-        metrotren_communes_dict = json.load(communes_json)
+def get_commune_for_extra_location(row, start_commune, end_commune):
+    valid = True
+    with open(os.path.join(INPUTS_PATH, 'extra_location_communes.json')) as communes_json:
+        extra_location_communes = json.load(communes_json)
         if not start_commune:
-            start_commune = metrotren_communes_dict.get(row[20], None)
+            start_commune = extra_location_communes.get(row[20], None)
         if not end_commune:
-            end_commune = metrotren_communes_dict.get(row[21], None)
+            end_commune = extra_location_communes.get(row[21], None)
     if not start_commune:
-        is_metrotren = False
+        valid = False
         logger.warning("{0} has not commune. ".format(row[20]))
     if not end_commune:
-        is_metrotren = False
+        valid = False
         logger.warning("{0} has not commune. ".format(row[21]))
 
-    return is_metrotren, start_commune, end_commune
+    return valid, start_commune, end_commune
 
 
 def process_trip_data(file_path):
@@ -63,7 +63,7 @@ def process_trip_data(file_path):
             end_commune = communes_dict.get(row[23], None)
             valid = True
             if not start_commune or not end_commune:
-                valid, start_commune, end_commune = get_commune_for_metrotren_station(row, start_commune,
+                valid, start_commune, end_commune = get_commune_for_extra_location(row, start_commune,
                                                                                       end_commune)
             if valid:
                 trip_data[start_commune][end_commune] += trip_value
