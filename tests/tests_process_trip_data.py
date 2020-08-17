@@ -19,7 +19,23 @@ class ProcessTripDataTest(TestCase):
         self.file_path_empty_gz = os.path.join(dir_path, 'trip_files/2019-10-nodata.trip.gz')
         logging.disable(logging.CRITICAL)
 
-    def test_get_commune_for_metrotren_station(self):
+    def test_get_commune_for_metrotren_station_start_station(self):
+        metrotren_row = ['2', '1.77', '1', '3.5667', '2756.35', '0.00', '2020-03-01 11:18:16', '2020-03-01 11:21:50',
+                         '22', '22', '25', '25', '4', '-1', '-1', '-1', '-', '-', '-', '-', 'Estacion Lo Valledor',
+                         'Estacion Alameda', '-1', '-1', '400', '78', '4', '2020-03-01 11:18:16', '-', '-', '-',
+                         '2020-03-01 11:21:50', '-', '-', '-', '400', '-', '-', '-', '78', '-', '-', '-',
+                         'Estacion Lo Valledor', '-', '-', '-', 'Estacion Alameda', '-', '-', '-', '-', '-', '-', '-',
+                         '-', '-', '-', '-', '']
+
+        expected_start_commune = "Pedro Aguirre Cerda"
+        expected_end_commune = "Estación Central"
+        is_metrotren, start_commune, end_commune = get_commune_for_metrotren_station(metrotren_row, None,
+                                                                                     None)
+        self.assertTrue(is_metrotren)
+        self.assertEqual(expected_start_commune, start_commune)
+        self.assertEqual(expected_end_commune, end_commune)
+
+    def test_get_commune_for_metrotren_station_end_station(self):
         metrotren_row = ['2', '2.46', '2', '27.7000', '20807.70', '2330.00', '2020-03-01 10:53:17',
                          '2020-03-01 11:20:59', '21', '22', '25', '25', '1', '4', '-1', '-1', 'T232 00R', '-', '-', '-',
                          'L-30-13-25-OP', 'Estacion Alameda', '8', '-1', '562', '78', '5', '2020-03-01 10:53:17',
@@ -27,14 +43,30 @@ class ProcessTripDataTest(TestCase):
                          '560', '-', '-', '560', '78', '-', '-', 'L-30-13-25-OP', 'Estacion Nos', '-', '-',
                          'L-30-51-95-SN', 'Estacion Alameda', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '']
 
-        is_metrotren, communes = get_commune_for_metrotren_station(metrotren_row)
+        expected_start_commune = "San Bernardo"
+        expected_end_commune = "Estación Central"
+        is_metrotren, start_commune, end_commune = get_commune_for_metrotren_station(metrotren_row, "San Bernardo",
+                                                                                     None)
         self.assertTrue(is_metrotren)
+        self.assertEqual(expected_start_commune, start_commune)
+        self.assertEqual(expected_end_commune, end_commune)
+
+    def test_get_commune_for_metrotren_station_no_commune(self):
+        row = ['2', '1.76', '2', '69.5167', '13760.85', '0', '2020-03-01 12:11:32', '2020-03-01 13:21:03', '24', '26', '25', '25', '2', '1', '-1', '-1', '-', '-', '-', '-', 'UNIVERSIDAD DE SANTIAGO', 'L-23-15-41-PO', '16', '-1', '78', '657', '3', '2020-03-01 12:11:32', '2020-03-01 13:04:18', '-', '-', '-', '2020-03-01 13:21:03', '-', '-', '78', '744', '-', '-', '-', '657', '-', '-', 'UNIVERSIDAD DE SANTIAGO', 'L-22-4-20-PO', '-', '-', '-', 'L-23-15-41-PO', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '']
+
+        expected_start_commune = "Estación Central"
+        is_metrotren, start_commune, end_commune = get_commune_for_metrotren_station(row, expected_start_commune,
+                                                                                     None)
+        self.assertFalse(is_metrotren)
+        self.assertEqual(expected_start_commune, start_commune)
+        self.assertIsNone(end_commune)
 
     def test_process_trip_data(self):
         expected_dict = {'Ñuñoa': {'Recoleta': 1.31}, 'Recoleta': {'Santiago': 1.33},
                          'Santiago': {'Ñuñoa': 1.31, 'Santiago': 1.23}, 'La Florida': {'La Florida': 1.34},
-                         'Cerrillos': {'Maipú': 1.36}, 'Maipú': {'Cerrillos': 1.41}, 'Las Condes': {'Santiago': 1.33}}
-        self.assertEqual(expected_dict, dict(process_trip_data(self.file_path)))
+                         'Cerrillos': {'Maipú': 1.36}, 'Maipú': {'Cerrillos': 1.41}, 'Las Condes': {'Santiago': 1.33},
+                         'San Bernardo': {'Estación Central': 2.46}, 'Pedro Aguirre Cerda': {'Estación Central': 1.77}}
+        self.assertEqual(expected_dict, process_trip_data(self.file_path))
 
     def test_process_tripl_data_correct_gz(self):
         expected_dict = {'Ñuñoa': {'Recoleta': 1.31}, 'Recoleta': {'Santiago': 1.33},

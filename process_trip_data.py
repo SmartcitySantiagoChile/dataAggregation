@@ -25,12 +25,22 @@ BUCKET_NAME = config('MISCELLANEOUS_BUCKET_NAME')
 OUTPUT_NAME = 'viajesEntreComunas'
 
 
-def get_commune_for_metrotren_station(row):
-    is_metrotren = False
-    start_commune = row[22]
-    end_commune = row[23]
-    if start_commune == -1:
-        is_metrotren = True
+def get_commune_for_metrotren_station(row, start_commune, end_commune):
+    is_metrotren = True
+    with open(os.path.join(INPUTS_PATH, 'metrotren_communes.json')) as communes_json:
+        metrotren_communes_dict = json.load(communes_json)
+        if not start_commune:
+            start_commune = metrotren_communes_dict.get(row[20], None)
+        if not end_commune:
+            end_commune = metrotren_communes_dict.get(row[21], None)
+    if not start_commune:
+        is_metrotren = False
+        logger.warning("{0} has not commune. ".format(row[20]))
+    if not end_commune:
+        is_metrotren = False
+        logger.warning("{0} has not commune. ".format(row[21]))
+
+    return is_metrotren, start_commune, end_commune
 
 
 def process_trip_data(file_path):
@@ -48,15 +58,16 @@ def process_trip_data(file_path):
             return None
 
         for row in reader:
-            try:
-                trip_value = float(row[1])
-                start_commune = communes_dict[row[22]]
-                end_commune = communes_dict[row[23]]
+            trip_value = float(row[1])
+            start_commune = communes_dict.get(row[22], None)
+            end_commune = communes_dict.get(row[23], None)
+            valid = True
+            if not start_commune or not end_commune:
+                valid, start_commune, end_commune = get_commune_for_metrotren_station(row, start_commune,
+                                                                                      end_commune)
+            if valid:
                 trip_data[start_commune][end_commune] += trip_value
-            except KeyError:
-                print(row)
-                print(row[22])
-                print(row[23])
+
         f.close()
     return dict(trip_data)
 
