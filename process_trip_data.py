@@ -2,6 +2,7 @@
 import argparse
 import csv
 import gzip
+import json
 import logging
 import os
 import shutil
@@ -24,38 +25,49 @@ BUCKET_NAME = config('MISCELLANEOUS_BUCKET_NAME')
 OUTPUT_NAME = 'viajesEntreComunas'
 
 
+def get_commune_for_extra_location(row, start_commune, end_commune):
+    errors = set()
+    with open(os.path.join(INPUTS_PATH, 'extra_location_communes.json')) as communes_json:
+        extra_location_communes = json.load(communes_json)
+        if not start_commune:
+            start_commune = extra_location_communes.get(row[20], None)
+        if not end_commune:
+            end_commune = extra_location_communes.get(row[21], None)
+    if not start_commune:
+        errors.add(row[20])
+    if not end_commune:
+        errors.add(row[21])
+    return errors, start_commune, end_commune
+
+
 def process_trip_data(file_path):
-    zone_dict = get_zone_dict(os.path.join(INPUTS_PATH, 'zone_dictionary.csv'))
     trip_data = defaultdict(lambda: defaultdict(float))
-    try:
-        f = get_file_object(file_path)
-        next(f)  # skip header
-        delimiter = str('|')
-        reader = csv.reader(f, delimiter=delimiter)
-        next(reader)
-    except (IndexError, StopIteration):
-        logging.warning("{0} is empty.".format(os.path.basename(file_path)))
-        return None
+    errors = set()
+    with open(os.path.join(INPUTS_PATH, 'communes.json')) as communes_json:
+        communes_dict = json.load(communes_json)
+        try:
+            f = get_file_object(file_path)
+            next(f)  # skip header
+            delimiter = str('|')
+            reader = csv.reader(f, delimiter=delimiter)
+            next(reader)
+        except (IndexError, StopIteration):
+            logging.warning("{0} is empty.".format(os.path.basename(file_path)))
+            return None, errors
 
-    for row in reader:
-        trip_value = float(row[1])
-        start_commune = zone_dict[row[24]]
-        end_commune = zone_dict[row[25]]
-        trip_data[start_commune][end_commune] += trip_value
-    f.close()
-    return dict(trip_data)
-
-
-def get_zone_dict(path):
-    with open(path, 'r', newline='\n', encoding='UTF-8') as inputfile:
-        csv_dict = csv.reader(inputfile)
-        next(csv_dict)
-        zone_dict = {}
-        for line in csv_dict:
-            code = line[3]
-            commune = line[6]
-            zone_dict[code] = commune
-        return zone_dict
+        for row in reader:
+            trip_value = float(row[1])
+            start_commune = communes_dict.get(row[22], None)
+            end_commune = communes_dict.get(row[23], None)
+            new_errors = set()
+            if not start_commune or not end_commune:
+                new_errors, start_commune, end_commune = get_commune_for_extra_location(row, start_commune,
+                                                                                   end_commune)
+            if not new_errors:
+                trip_data[start_commune][end_commune] += trip_value
+            errors.update(new_errors)
+        f.close()
+    return dict(trip_data), errors
 
 
 def save_csv_file(data, output, output_filename):
@@ -66,17 +78,20 @@ def save_csv_file(data, output, output_filename):
     with open(csv_name, 'w+', newline='\n') as outfile:
         w = csv.writer(outfile)
         w.writerow(['Fecha', 'Comuna_origen', 'Comuna_destino', 'N°_viajes_expandidos'])
-
+    errors = set()
     for d in data:
         date = "".join(os.path.basename(d)).split(".")[0]
         logger.info("Processing date {0}...".format(date))
-        data_dict = process_trip_data(d)
+        data_dict, new_errors = process_trip_data(d)
+        errors.update(new_errors)
         if data_dict:
             with open(csv_name, 'a+', newline='\n') as outfile:
                 w = csv.writer(outfile)
                 for start_commune in data_dict:
                     for end_commune in data_dict[start_commune].keys():
                         w.writerow([date, start_commune, end_commune, data_dict[start_commune][end_commune]])
+    for e in errors:
+        logger.warning("{0} has no commune.".format(e))
 
     with open(csv_name, 'rb') as f_in:
         with gzip.open(gz_name, 'wb') as f_out:
