@@ -40,7 +40,7 @@ def get_commune_for_extra_location(row, start_commune, end_commune):
     return errors, start_commune, end_commune
 
 
-def process_viaje_data(file_path):
+def process_viajes_data(file_path):
     trip_data = defaultdict(lambda: defaultdict(float))
     errors = set()
     with open(os.path.join(INPUTS_PATH, 'communes.json')) as communes_json:
@@ -85,7 +85,7 @@ def save_csv_file(data, output, output_filename):
     for d in data:
         date = "".join(os.path.basename(d)).split(".")[0]
         logger.info("Processing date {0}...".format(date))
-        data_dict, new_errors = process_viaje_data(d)
+        data_dict, new_errors = process_viajes_data(d)
         errors.update(new_errors)
         if data_dict:
             with open(csv_name, 'a+', newline='\n') as outfile:
@@ -138,7 +138,7 @@ def main(argv):
         parser.error('lower-bound must be lower than upper-bound ')
 
     # get data files
-    files_path = get_files('viaje', input_path)
+    files_path = get_files('viajes', input_path)
 
     # filter between dates
     if lower_bound:

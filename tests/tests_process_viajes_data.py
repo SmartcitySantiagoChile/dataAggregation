@@ -4,19 +4,19 @@ import logging
 import os
 from unittest import TestCase, mock
 
-from process_viaje_data import process_viaje_data, get_commune_for_extra_location, save_csv_file, main
+from process_viajes_data import process_viajes_data, get_commune_for_extra_location, save_csv_file, main
 
 
-class ProcessViajeDataTest(TestCase):
+class ProcessViajesDataTest(TestCase):
     def setUp(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        self.data_path = os.path.join(dir_path, 'viaje_files')
-        self.file_path = os.path.join(self.data_path, '2020-03-01.viaje')
-        self.file_path_gz = os.path.join(self.data_path, '2020-03-01.viaje.gz')
-        self.file_path_zip = os.path.join(self.data_path, '2020-03-01.viaje.zip')
-        self.file_path_without_data = os.path.join(self.data_path, '2020-nodata.viaje')
-        self.file_path_empty_zip = os.path.join(self.data_path, '2020-nodata.viaje.zip')
-        self.file_path_empty_gz = os.path.join(self.data_path, '2020-nodata.viaje.gz')
+        self.data_path = os.path.join(dir_path, 'viajes_files')
+        self.file_path = os.path.join(self.data_path, '2020-03-01.viajes')
+        self.file_path_gz = os.path.join(self.data_path, '2020-03-01.viajes.gz')
+        self.file_path_zip = os.path.join(self.data_path, '2020-03-01.viajes.zip')
+        self.file_path_without_data = os.path.join(self.data_path, '2020-nodata.viajes')
+        self.file_path_empty_zip = os.path.join(self.data_path, '2020-nodata.viajes.zip')
+        self.file_path_empty_gz = os.path.join(self.data_path, '2020-nodata.viajes.gz')
         logging.disable(logging.CRITICAL)
 
     def test_get_commune_for_extra_location_start_station(self):
@@ -91,35 +91,35 @@ class ProcessViajeDataTest(TestCase):
         self.assertIsNone(start_commune)
         self.assertIsNone(end_commune)
 
-    def test_process_viaje_data(self):
+    def test_process_viajes_data(self):
         expected_dict = {'San Miguel': {'Santiago': 1.5236},
                          'Santiago': {'San Miguel': 1.4524},
                          'Recoleta': {'Recoleta': 1.5408},
                          'Ñuñoa': {'Ñuñoa': 1.4085}}
-        self.assertEqual(expected_dict, process_viaje_data(self.file_path)[0])
+        self.assertEqual(expected_dict, process_viajes_data(self.file_path)[0])
 
-    def test_process_viaje_data_correct_gz(self):
+    def test_process_viajes_data_correct_gz(self):
         expected_dict = {'San Miguel': {'Santiago': 1.5236},
                          'Santiago': {'San Miguel': 1.4524},
                          'Recoleta': {'Recoleta': 1.5408},
                          'Ñuñoa': {'Ñuñoa': 1.4085}}
-        self.assertDictEqual(expected_dict, process_viaje_data(self.file_path_gz)[0])
+        self.assertDictEqual(expected_dict, process_viajes_data(self.file_path_gz)[0])
 
-    def test_process_viaje_data_correct_zip(self):
+    def test_process_viajes_data_correct_zip(self):
         expected_dict = {'San Miguel': {'Santiago': 1.5236},
                          'Santiago': {'San Miguel': 1.4524},
                          'Recoleta': {'Recoleta': 1.5408},
                          'Ñuñoa': {'Ñuñoa': 1.4085}}
-        self.assertDictEqual(expected_dict, process_viaje_data(self.file_path_zip)[0])
+        self.assertDictEqual(expected_dict, process_viajes_data(self.file_path_zip)[0])
 
-    def test_process_viaje_data_nodata(self):
-        self.assertIsNone(process_viaje_data(self.file_path_without_data)[0])
+    def test_process_viajes_data_nodata(self):
+        self.assertIsNone(process_viajes_data(self.file_path_without_data)[0])
 
-    def test_process_viaje_data_empty_zip(self):
-        self.assertIsNone(process_viaje_data(self.file_path_empty_zip)[0])
+    def test_process_viajes_data_empty_zip(self):
+        self.assertIsNone(process_viajes_data(self.file_path_empty_zip)[0])
 
-    def test_process_viaje_data_empty_gz(self):
-        self.assertIsNone(process_viaje_data(self.file_path_empty_gz)[0])
+    def test_process_viajes_data_empty_gz(self):
+        self.assertIsNone(process_viajes_data(self.file_path_empty_gz)[0])
 
     def test_save_csv_file(self):
         data = [self.file_path, self.file_path_empty_gz, self.file_path_empty_zip, self.file_path_without_data]
@@ -150,12 +150,12 @@ class ProcessViajeDataTest(TestCase):
             for row in expected:
                 self.assertEqual(row, next(reader))
 
-    @mock.patch('process_viaje_data.config')
-    @mock.patch('process_viaje_data.save_csv_file')
-    @mock.patch('process_viaje_data.get_files')
-    @mock.patch('process_viaje_data.OUTPUT_PATH')
-    @mock.patch('process_viaje_data.INPUTS_PATH')
-    @mock.patch('process_viaje_data.DIR_PATH')
+    @mock.patch('process_viajes_data.config')
+    @mock.patch('process_viajes_data.save_csv_file')
+    @mock.patch('process_viajes_data.get_files')
+    @mock.patch('process_viajes_data.OUTPUT_PATH')
+    @mock.patch('process_viajes_data.INPUTS_PATH')
+    @mock.patch('process_viajes_data.DIR_PATH')
     def test_main(self, dir_path, input_path, output_path, get_files,
                   save_csv_file, config):
         dir_path.return_value = self.data_path
@@ -163,14 +163,14 @@ class ProcessViajeDataTest(TestCase):
         output_path.return_value = self.data_path
         get_files.return_value = [self.file_path]
         save_csv_file.side_effect = None
-        main(['process_viaje_data', 'input'])
+        main(['process_viajes_data', 'input'])
 
-    @mock.patch('process_viaje_data.send_data_to_s3')
-    @mock.patch('process_viaje_data.save_csv_file')
-    @mock.patch('process_viaje_data.process_viaje_data')
-    @mock.patch('process_viaje_data.get_files')
-    @mock.patch('process_viaje_data.INPUTS_PATH')
-    @mock.patch('process_viaje_data.DIR_PATH')
+    @mock.patch('process_viajes_data.send_data_to_s3')
+    @mock.patch('process_viajes_data.save_csv_file')
+    @mock.patch('process_viajes_data.process_viajes_data')
+    @mock.patch('process_viajes_data.get_files')
+    @mock.patch('process_viajes_data.INPUTS_PATH')
+    @mock.patch('process_viajes_data.DIR_PATH')
     def test_main_with_s3(self, dir_path, input_path, get_files,
                           p_data, save_csv_file, send_s3):
         send_s3.side_effect = mock.MagicMock()
@@ -178,15 +178,15 @@ class ProcessViajeDataTest(TestCase):
         input_path.return_value = 'input'
         get_files.return_value = [os.path.join(self.data_path, '2020-03-01.viaje')]
         save_csv_file.side_effect = None
-        main(['process_viaje_data', 'input', '--send-to-s3'])
+        main(['process_viajes_data', 'input', '--send-to-s3'])
 
-    @mock.patch('process_viaje_data.config')
-    @mock.patch('process_viaje_data.save_csv_file')
-    @mock.patch('process_viaje_data.process_viaje_data')
-    @mock.patch('process_viaje_data.get_files')
-    @mock.patch('process_viaje_data.OUTPUT_PATH')
-    @mock.patch('process_viaje_data.INPUTS_PATH')
-    @mock.patch('process_viaje_data.DIR_PATH')
+    @mock.patch('process_viajes_data.config')
+    @mock.patch('process_viajes_data.save_csv_file')
+    @mock.patch('process_viajes_data.process_viajes_data')
+    @mock.patch('process_viajes_data.get_files')
+    @mock.patch('process_viajes_data.OUTPUT_PATH')
+    @mock.patch('process_viajes_data.INPUTS_PATH')
+    @mock.patch('process_viajes_data.DIR_PATH')
     def test_main_with_lower_bound_only(self, dir_path, input_path, output_path, get_files,
                                         p_data, save_csv_file, config):
         dir_path.return_value = self.data_path
@@ -196,15 +196,15 @@ class ProcessViajeDataTest(TestCase):
         p_data.return_value = [['2020-03-01', '420420']]
         save_csv_file.side_effect = None
         with self.assertRaises(SystemExit) as cm:
-            main(['process_viaje_data', 'input', '--lower-bound', '2020-10-10'])
+            main(['process_viajes_data', 'input', '--lower-bound', '2020-10-10'])
 
-    @mock.patch('process_viaje_data.config')
-    @mock.patch('process_viaje_data.save_csv_file')
-    @mock.patch('process_viaje_data.process_viaje_data')
-    @mock.patch('process_viaje_data.get_files')
-    @mock.patch('process_viaje_data.OUTPUT_PATH')
-    @mock.patch('process_viaje_data.INPUTS_PATH')
-    @mock.patch('process_viaje_data.DIR_PATH')
+    @mock.patch('process_viajes_data.config')
+    @mock.patch('process_viajes_data.save_csv_file')
+    @mock.patch('process_viajes_data.process_viajes_data')
+    @mock.patch('process_viajes_data.get_files')
+    @mock.patch('process_viajes_data.OUTPUT_PATH')
+    @mock.patch('process_viajes_data.INPUTS_PATH')
+    @mock.patch('process_viajes_data.DIR_PATH')
     def test_main_with_upper_bound_only(self, dir_path, input_path, output_path, get_files,
                                         p_data, save_csv_file, config):
         dir_path.return_value = self.data_path
@@ -214,15 +214,15 @@ class ProcessViajeDataTest(TestCase):
         p_data.return_value = [['2020-03-01', '420420']]
         save_csv_file.side_effect = None
         with self.assertRaises(SystemExit) as cm:
-            main(['process_viaje_data', 'input', '--upper-bound', '2020-10-10'])
+            main(['process_viajes_data', 'input', '--upper-bound', '2020-10-10'])
 
-    @mock.patch('process_viaje_data.config')
-    @mock.patch('process_viaje_data.save_csv_file')
-    @mock.patch('process_viaje_data.process_viaje_data')
-    @mock.patch('process_viaje_data.get_files')
-    @mock.patch('process_viaje_data.OUTPUT_PATH')
-    @mock.patch('process_viaje_data.INPUTS_PATH')
-    @mock.patch('process_viaje_data.DIR_PATH')
+    @mock.patch('process_viajes_data.config')
+    @mock.patch('process_viajes_data.save_csv_file')
+    @mock.patch('process_viajes_data.process_viajes_data')
+    @mock.patch('process_viajes_data.get_files')
+    @mock.patch('process_viajes_data.OUTPUT_PATH')
+    @mock.patch('process_viajes_data.INPUTS_PATH')
+    @mock.patch('process_viajes_data.DIR_PATH')
     def test_main_with_upper_bound_lower(self, dir_path, input_path, output_path, get_files,
                                          p_data, save_csv_file, config):
         dir_path.return_value = self.data_path
@@ -232,15 +232,15 @@ class ProcessViajeDataTest(TestCase):
         p_data.return_value = [['2020-03-01', '420420']]
         save_csv_file.side_effect = None
         with self.assertRaises(SystemExit) as cm:
-            main(['process_viaje_data', 'input', '--lower-bound', '2021-10-10', '--upper-bound', '2020-10-10'])
+            main(['process_viajes_data', 'input', '--lower-bound', '2021-10-10', '--upper-bound', '2020-10-10'])
 
-    @mock.patch('process_viaje_data.config')
-    @mock.patch('process_viaje_data.save_csv_file')
-    @mock.patch('process_viaje_data.process_viaje_data')
-    @mock.patch('process_viaje_data.get_files')
-    @mock.patch('process_viaje_data.OUTPUT_PATH')
-    @mock.patch('process_viaje_data.INPUTS_PATH')
-    @mock.patch('process_viaje_data.DIR_PATH')
+    @mock.patch('process_viajes_data.config')
+    @mock.patch('process_viajes_data.save_csv_file')
+    @mock.patch('process_viajes_data.process_viajes_data')
+    @mock.patch('process_viajes_data.get_files')
+    @mock.patch('process_viajes_data.OUTPUT_PATH')
+    @mock.patch('process_viajes_data.INPUTS_PATH')
+    @mock.patch('process_viajes_data.DIR_PATH')
     def test_main_with_lower_and_upper_bound(self, dir_path, input_path, output_path, get_files,
                                              p_data, save_csv_file, config):
         dir_path.return_value = self.data_path
@@ -249,7 +249,7 @@ class ProcessViajeDataTest(TestCase):
         get_files.return_value = [os.path.join(self.data_path, '2020-03-01.viaje')]
         p_data.return_value = ['2020-03-01', '5930344']
         save_csv_file.side_effect = None
-        main(['process_viaje_data', 'input', '--lower-bound', '2019-10-01', '--upper-bound', '2020-01-01'])
+        main(['process_viajes_data', 'input', '--lower-bound', '2019-10-01', '--upper-bound', '2020-01-01'])
 
     def tearDown(self):
         test_gz = os.path.join(self.data_path, 'test.gz')
