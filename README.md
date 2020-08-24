@@ -85,11 +85,11 @@ python process_general_data.py -h
 ```
 
 
-## Trip Data
+## Viajes Data
 To run dataAggregation you need to execute:
 
 ```
-python process_trip_data.py [path] [--output OUTPUT] [--send-to-s3] [--lower bound LOWER-BOUND] [--upper bound UPPER-BOUND]
+python process_viajes_data.py [path] [--output OUTPUT] [--send-to-s3] [--lower bound LOWER-BOUND] [--upper bound UPPER-BOUND]
 ```
 - [path] path with files.
 - [--output OUTPUT] output file path.
@@ -104,5 +104,5 @@ The output file will be a csv file saved at choosen output path or dataAggregati
 To get help with command you need to execute:
 
 ```
-python process_trip_data.py -h 
+python process_viajes_data.py -h 
 ```
