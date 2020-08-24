@@ -40,7 +40,7 @@ def get_commune_for_extra_location(row, start_commune, end_commune):
     return errors, start_commune, end_commune
 
 
-def process_trip_data(file_path):
+def process_viaje_data(file_path):
     trip_data = defaultdict(lambda: defaultdict(float))
     errors = set()
     with open(os.path.join(INPUTS_PATH, 'communes.json')) as communes_json:
@@ -66,7 +66,7 @@ def process_trip_data(file_path):
             if not start_commune or not end_commune:
                 new_errors, start_commune, end_commune = get_commune_for_extra_location(row, start_commune,
                                                                                         end_commune)
-            else:
+            if not new_errors:
                 trip_data[start_commune][end_commune] += trip_value
             errors.update(new_errors)
         f.close()
@@ -85,7 +85,7 @@ def save_csv_file(data, output, output_filename):
     for d in data:
         date = "".join(os.path.basename(d)).split(".")[0]
         logger.info("Processing date {0}...".format(date))
-        data_dict, new_errors = process_trip_data(d)
+        data_dict, new_errors = process_viaje_data(d)
         errors.update(new_errors)
         if data_dict:
             with open(csv_name, 'a+', newline='\n') as outfile:
