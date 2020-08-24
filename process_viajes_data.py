@@ -30,13 +30,13 @@ def get_commune_for_extra_location(row, start_commune, end_commune):
     with open(os.path.join(INPUTS_PATH, 'extra_location_communes.json')) as communes_json:
         extra_location_communes = json.load(communes_json)
         if not start_commune:
-            start_commune = extra_location_communes.get(row[10].title(), None)
+            start_commune = extra_location_communes.get(row[10].title().rstrip(), None)
         if not end_commune:
-            end_commune = extra_location_communes.get(row[11].title(), None)
+            end_commune = extra_location_communes.get(row[11].title().rstrip(), None)
     if not start_commune:
-        errors.add(row[10].title())
+        errors.add(row[10].title().rstrip())
     if not end_commune:
-        errors.add(row[11].title())
+        errors.add(row[11].title().rstrip())
     return errors, start_commune, end_commune
 
 
