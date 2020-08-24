@@ -43,33 +43,32 @@ def get_commune_for_extra_location(row, start_commune, end_commune):
 def process_viajes_data(file_path):
     trip_data = defaultdict(lambda: defaultdict(float))
     errors = set()
-    with open(os.path.join(INPUTS_PATH, 'communes.json')) as communes_json:
-        try:
-            f = get_file_object(file_path)
-            next(f)  # skip header
-            delimiter = str('|')
-            reader = csv.reader(f, delimiter=delimiter)
-            next(reader)
-        except (IndexError, StopIteration):
-            logging.warning("{0} is empty.".format(os.path.basename(file_path)))
-            return None, errors
+    try:
+        f = get_file_object(file_path)
+        next(f)  # skip header
+        delimiter = str('|')
+        reader = csv.reader(f, delimiter=delimiter)
+        next(reader)
+    except (IndexError, StopIteration):
+        logging.warning("{0} is empty.".format(os.path.basename(file_path)))
+        return None, errors
 
-        for row in reader:
-            trip_value = float(row[23])
-            start_commune = row[12].title().rstrip() if row[12] != '-' else None
-            end_commune = row[13].title().rstrip() if row[13] != '-' else None
-            if start_commune == 'Nunoa':
-                start_commune = 'Ñuñoa'
-            if end_commune == 'Nunoa':
-                end_commune = 'Ñuñoa'
-            new_errors = set()
-            if not start_commune or not end_commune:
-                new_errors, start_commune, end_commune = get_commune_for_extra_location(row, start_commune,
-                                                                                        end_commune)
-            if not new_errors:
-                trip_data[start_commune][end_commune] += trip_value
-            errors.update(new_errors)
-        f.close()
+    for row in reader:
+        trip_value = float(row[23])
+        start_commune = row[12].title().rstrip() if row[12] != '-' else None
+        end_commune = row[13].title().rstrip() if row[13] != '-' else None
+        if start_commune == 'Nunoa':
+            start_commune = 'Ñuñoa'
+        if end_commune == 'Nunoa':
+            end_commune = 'Ñuñoa'
+        new_errors = set()
+        if not start_commune or not end_commune:
+            new_errors, start_commune, end_commune = get_commune_for_extra_location(row, start_commune,
+                                                                                    end_commune)
+        if not new_errors:
+            trip_data[start_commune][end_commune] += trip_value
+        errors.update(new_errors)
+    f.close()
     return dict(trip_data), errors
 
 
