@@ -30,43 +30,45 @@ def get_commune_for_extra_location(row, start_commune, end_commune):
     with open(os.path.join(INPUTS_PATH, 'extra_location_communes.json')) as communes_json:
         extra_location_communes = json.load(communes_json)
         if not start_commune:
-            start_commune = extra_location_communes.get(row[20], None)
+            start_commune = extra_location_communes.get(row[10].title().rstrip(), None)
         if not end_commune:
-            end_commune = extra_location_communes.get(row[21], None)
+            end_commune = extra_location_communes.get(row[11].title().rstrip(), None)
     if not start_commune:
-        errors.add(row[20])
+        errors.add(row[10].title().rstrip())
     if not end_commune:
-        errors.add(row[21])
+        errors.add(row[11].title().rstrip())
     return errors, start_commune, end_commune
 
 
-def process_trip_data(file_path):
+def process_viajes_data(file_path):
     trip_data = defaultdict(lambda: defaultdict(float))
     errors = set()
-    with open(os.path.join(INPUTS_PATH, 'communes.json')) as communes_json:
-        communes_dict = json.load(communes_json)
-        try:
-            f = get_file_object(file_path)
-            next(f)  # skip header
-            delimiter = str('|')
-            reader = csv.reader(f, delimiter=delimiter)
-            next(reader)
-        except (IndexError, StopIteration):
-            logging.warning("{0} is empty.".format(os.path.basename(file_path)))
-            return None, errors
+    try:
+        f = get_file_object(file_path)
+        next(f)  # skip header
+        delimiter = str('|')
+        reader = csv.reader(f, delimiter=delimiter)
+        next(reader)
+    except (IndexError, StopIteration):
+        logging.warning("{0} is empty.".format(os.path.basename(file_path)))
+        return None, errors
 
-        for row in reader:
-            trip_value = float(row[1])
-            start_commune = communes_dict.get(row[22], None)
-            end_commune = communes_dict.get(row[23], None)
-            new_errors = set()
-            if not start_commune or not end_commune:
-                new_errors, start_commune, end_commune = get_commune_for_extra_location(row, start_commune,
-                                                                                   end_commune)
-            if not new_errors:
-                trip_data[start_commune][end_commune] += trip_value
-            errors.update(new_errors)
-        f.close()
+    for row in reader:
+        trip_value = float(row[23])
+        start_commune = row[12].title().rstrip() if row[12] != '-' else None
+        end_commune = row[13].title().rstrip() if row[13] != '-' else None
+        if start_commune == 'Nunoa':
+            start_commune = 'Ñuñoa'
+        if end_commune == 'Nunoa':
+            end_commune = 'Ñuñoa'
+        new_errors = set()
+        if not start_commune or not end_commune:
+            new_errors, start_commune, end_commune = get_commune_for_extra_location(row, start_commune,
+                                                                                    end_commune)
+        if not new_errors:
+            trip_data[start_commune][end_commune] += trip_value
+        errors.update(new_errors)
+    f.close()
     return dict(trip_data), errors
 
 
@@ -82,7 +84,7 @@ def save_csv_file(data, output, output_filename):
     for d in data:
         date = "".join(os.path.basename(d)).split(".")[0]
         logger.info("Processing date {0}...".format(date))
-        data_dict, new_errors = process_trip_data(d)
+        data_dict, new_errors = process_viajes_data(d)
         errors.update(new_errors)
         if data_dict:
             with open(csv_name, 'a+', newline='\n') as outfile:
@@ -135,7 +137,7 @@ def main(argv):
         parser.error('lower-bound must be lower than upper-bound ')
 
     # get data files
-    files_path = get_files('trip', input_path)
+    files_path = get_files('viajes', input_path)
 
     # filter between dates
     if lower_bound:
