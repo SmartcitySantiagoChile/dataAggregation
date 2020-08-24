@@ -138,7 +138,7 @@ def main(argv):
         parser.error('lower-bound must be lower than upper-bound ')
 
     # get data files
-    files_path = get_files('viajes', input_path)
+    files_path = get_files('viaje', input_path)
 
     # filter between dates
     if lower_bound:
